@@ -354,6 +354,13 @@ export interface components {
             type?: "BUG" | "QUESTION" | "FEATURE" | "DOCUMENTATION";
             /** Format: int64 */
             creatorId?: number;
+            creatorUsername?: string;
+            /** Format: int64 */
+            assignedToId?: number;
+            assignedToUsername?: string;
+            /** Format: int64 */
+            projectId?: number;
+            projectName?: string;
             labels?: components["schemas"]["LabelResponseDto"][];
         };
         LabelResponseDto: {
