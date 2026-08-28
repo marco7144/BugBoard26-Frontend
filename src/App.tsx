@@ -1,11 +1,12 @@
-import './App.css'
+import { AppRoutes } from './routes/AppRoutes';
+import './App.css';
 
 function App() {
   return (
-    <main className="app-container">
-      <h1>BugBoard26</h1>
-    </main>
-  )
+    <div className="app-root">
+      <AppRoutes />
+    </div>
+  );
 }
 
-export default App
+export default App;
