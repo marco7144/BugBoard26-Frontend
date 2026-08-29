@@ -1,0 +1,189 @@
+/* ==========================================================================
+   BUGBOARD26 - LOGIN FORM STYLES
+   Componente di presentazione LoginForm.
+   Utilizza le classi base (.card, .form-group, .form-label, .form-input, .form-error, .btn) di index.css.
+   ========================================================================== */
+
+/* --- Card Container --- */
+.login-card-wrapper {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 32px 28px;
+}
+
+/* --- Brand Header (Logo & Titolo) --- */
+.login-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.login-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  margin-bottom: 4px;
+  transition: transform var(--transition-fast);
+}
+
+.login-logo-badge:hover {
+  transform: scale(1.05);
+}
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.login-title span {
+  color: var(--color-primary);
+}
+
+.login-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* --- Input con Icona e Password Toggle --- */
+.input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-left {
+  position: absolute;
+  left: 12px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.input-icon-wrapper:focus-within .input-icon-left {
+  color: var(--color-primary);
+}
+
+.form-input.input-has-icon-left {
+  padding-left: 38px;
+}
+
+.form-input.input-has-toggle-right {
+  padding-right: 40px;
+}
+
+.form-input.input-invalid {
+  border-color: var(--color-error);
+  background-color: rgba(220, 38, 38, 0.03);
+}
+
+.form-input.input-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-text-primary);
+}
+
+/* --- Opzioni Form (Ricordami & Link) --- */
+.login-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  margin-top: -6px;
+  margin-bottom: 6px;
+}
+
+.login-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border);
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+
+/* --- Pulsante Submit e Spinner --- */
+.login-submit-btn {
+  width: 100%;
+  padding: 11px 18px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.login-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --- Alert Errore Globale / Server --- */
+.login-alert-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  background-color: var(--color-error-bg);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: var(--color-error);
+}
+
+.login-alert-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* --- Responsive per Mobile --- */
+@media (max-width: 480px) {
+  .login-card-wrapper {
+    padding: 24px 18px;
+  }
+}
