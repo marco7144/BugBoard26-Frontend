@@ -15,6 +15,8 @@ import './LoginForm.css';
 export interface LoginFormProps {
   /** Callback invocato all'invio del form con credenziali validate */
   onSubmit: (credentials: LoginCredentials) => void | Promise<void>;
+  /** Callback facoltativo per azzerare l'errore globale alla digitazione */
+  onClearError?: () => void;
   /** Indica se la richiesta di autenticazione è in elaborazione */
   isLoading?: boolean;
   /** Messaggio di errore restituito dal server o dalla logica esterna */
@@ -34,6 +36,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
  */
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
+  onClearError,
   isLoading = false,
   errorMessage = null,
   defaultEmail = '',
@@ -43,7 +46,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [email, setEmail] = useState<string>(defaultEmail);
   const [password, setPassword] = useState<string>(defaultPassword);
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [rememberMe, setRememberMe] = useState<boolean>(true);
 
   // Stato validazione locale
   const [validationErrors, setValidationErrors] = useState<{
@@ -64,8 +66,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     if (!password) {
       errors.password = 'Inserisci la password.';
-    } else if (password.length < 6) {
-      errors.password = 'La password deve contenere almeno 6 caratteri.';
     }
 
     setValidationErrors(errors);
@@ -129,6 +129,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 if (validationErrors.email) {
                   setValidationErrors((prev) => ({ ...prev, email: undefined }));
                 }
+                if (onClearError) {
+                  onClearError();
+                }
               }}
               autoComplete="email"
               disabled={isLoading}
@@ -163,6 +166,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 if (validationErrors.password) {
                   setValidationErrors((prev) => ({ ...prev, password: undefined }));
                 }
+                if (onClearError) {
+                  onClearError();
+                }
               }}
               autoComplete="current-password"
               disabled={isLoading}
@@ -185,20 +191,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               {validationErrors.password}
             </span>
           )}
-        </div>
-
-        {/* Opzione Ricordami */}
-        <div className="login-options-row">
-          <label className="login-checkbox-label">
-            <input
-              type="checkbox"
-              className="login-checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              disabled={isLoading}
-            />
-            <span>Ricordami</span>
-          </label>
         </div>
 
         {/* Pulsante Submit */}

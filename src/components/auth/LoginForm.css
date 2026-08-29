@@ -115,35 +115,6 @@
   color: var(--color-text-primary);
 }
 
-/* --- Opzioni Form (Ricordami & Link) --- */
-.login-options-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.8125rem;
-  margin-top: -6px;
-  margin-bottom: 6px;
-}
-
-.login-checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  user-select: none;
-}
-
-.login-checkbox {
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-xs);
-  border: 1px solid var(--color-border);
-  accent-color: var(--color-primary);
-  cursor: pointer;
-}
-
-
 /* --- Pulsante Submit e Spinner --- */
 .login-submit-btn {
   width: 100%;
