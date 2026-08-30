@@ -54,7 +54,7 @@
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .sidebar-project-header {
@@ -85,17 +85,34 @@
   border-color: var(--color-primary);
 }
 
+.sidebar-project-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .sidebar-project-btn {
   width: 100%;
   justify-content: center;
   font-weight: 600;
-  border-style: dashed;
-  margin-top: 4px;
+  font-size: 0.8125rem;
+  padding: 6px 8px;
   background-color: var(--color-surface);
+  transition: all var(--transition-fast);
+}
+
+.sidebar-project-btn-participants {
+  border-style: solid;
+}
+
+.sidebar-project-btn-create {
+  border-style: dashed;
 }
 
 .sidebar-project-btn:hover {
   background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* --- Menu Navigazione Verticale --- */
@@ -139,6 +156,7 @@
   .sidebar-brand span,
   .sidebar-project-header span,
   .sidebar-project-select,
+  .sidebar-project-actions,
   .sidebar-link span {
     display: none;
   }

@@ -1,9 +1,3 @@
-/**
- * Configurazione e utility per le icone predefinite (preset) dei progetti.
- * Fornisce 8 template grafici SVG standard (derivati da Lucide/Feather Icons)
- * e le funzioni helper per la codifica e normalizzazione Base64 per il Backend.
- */
-
 export interface PresetIcon {
   id: string;
   name: string;
@@ -69,4 +63,3 @@ export const svgToBase64 = (svgString: string): string => {
   const binary = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join('');
   return window.btoa(binary);
 };
-

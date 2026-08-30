@@ -4,6 +4,7 @@ import { Bug, LayoutDashboard, Users, FolderKanban, Plus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProject } from '../../context/ProjectContext';
 import { CreateProjectModal } from '../projects/CreateProjectModal';
+import { ProjectParticipantsModal } from '../projects/ProjectParticipantsModal';
 import './Sidebar.css';
 
 /**
@@ -13,7 +14,8 @@ import './Sidebar.css';
 export const Sidebar: React.FC = () => {
   const { isAdmin } = useAuth();
   const { selectedProject, projects, selectProjectById } = useProject();
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState<boolean>(false);
 
   const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const projectId = Number(e.target.value);
@@ -58,17 +60,32 @@ export const Sidebar: React.FC = () => {
             )}
           </select>
 
-          {isAdmin && (
-            <button
-              type="button"
-              className="btn btn-outline btn-sm sidebar-project-btn"
-              onClick={() => setIsCreateModalOpen(true)}
-              title="Crea un nuovo progetto"
-            >
-              <Plus size={15} />
-              <span>Nuovo Progetto</span>
-            </button>
-          )}
+          {/* Azioni Progetto: Partecipanti & Nuovo Progetto */}
+          <div className="sidebar-project-actions">
+            {selectedProject && (
+              <button
+                type="button"
+                className="btn btn-outline btn-sm sidebar-project-btn sidebar-project-btn-participants"
+                onClick={() => setIsParticipantsModalOpen(true)}
+                title="Visualizza e gestisci i partecipanti del progetto"
+              >
+                <Users size={14} />
+                <span>Partecipanti</span>
+              </button>
+            )}
+
+            {isAdmin && (
+              <button
+                type="button"
+                className="btn btn-outline btn-sm sidebar-project-btn sidebar-project-btn-create"
+                onClick={() => setIsCreateModalOpen(true)}
+                title="Crea un nuovo progetto"
+              >
+                <Plus size={14} />
+                <span>Nuovo Progetto</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 3. Link di Navigazione */}
@@ -101,6 +118,14 @@ export const Sidebar: React.FC = () => {
         <CreateProjectModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
+        />
+      )}
+
+      {/* Finestra Modale Gestione Partecipanti Progetto */}
+      {selectedProject && (
+        <ProjectParticipantsModal
+          isOpen={isParticipantsModalOpen}
+          onClose={() => setIsParticipantsModalOpen(false)}
         />
       )}
     </>

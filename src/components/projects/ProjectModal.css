@@ -1,0 +1,391 @@
+/* --------------------------------------------------------------------------
+   1. SEZIONE ICONA & PREVIEW PROGETTO (CreateProjectModal)
+   -------------------------------------------------------------------------- */
+.project-icon-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.project-icon-preset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  background-color: var(--color-surface);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.project-icon-preset:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+
+.project-icon-preset.active {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  box-shadow: 0 0 0 2px rgba(0, 74, 198, 0.2);
+}
+
+.project-icon-preset-svg {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-icon-preset-svg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.project-icon-preset-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.project-icon-preset.active .project-icon-preset-label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Box Anteprima Progetto */
+.project-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background-color: var(--color-surface-variant);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-top: 4px;
+}
+
+.project-preview-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.project-preview-icon img,
+.project-preview-icon svg {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.project-preview-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.project-preview-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-preview-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   2. MODALE PARTECIPANTI PROGETTO (ProjectParticipantsModal)
+   -------------------------------------------------------------------------- */
+.participants-modal-container {
+  max-width: 580px;
+}
+
+.modal-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.participants-project-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.participants-project-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.participants-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+/* Box Form Aggiungi Partecipante */
+.add-participant-box {
+  background-color: var(--color-surface-variant);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-participant-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.add-participant-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.add-participant-form {
+  width: 100%;
+}
+
+.add-participant-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.add-participant-select {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+}
+
+.add-participant-submit-btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-participant-empty-note {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.participants-readonly-info {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-variant);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+/* Header Elenco Partecipanti */
+.participants-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+  gap: 12px;
+}
+
+.participants-count-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.participants-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.participants-search-icon {
+  position: absolute;
+  left: 8px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.participants-search-input {
+  padding: 4px 8px 4px 26px;
+  font-size: 0.8125rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  width: 160px;
+  transition: all var(--transition-fast);
+}
+
+.participants-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  width: 190px;
+}
+
+/* Lista Partecipanti */
+.participants-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin: 0;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.participant-item:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
+}
+
+.participant-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.participant-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.participant-username {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.participant-me-badge {
+  font-size: 0.6875rem;
+  padding: 1px 6px;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.participant-creator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  background-color: var(--color-warning-bg, #fef3c7);
+  color: #92400e;
+  border: 1px solid rgba(180, 83, 9, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+[data-theme='dark'] .participant-creator-badge {
+  background-color: var(--color-warning-bg, rgba(245, 158, 11, 0.15));
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.participant-email {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.participant-role-wrapper {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.participant-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+}
+
+/* Stati Caricamento e Vuoto */
+.participants-loading-container,
+.participants-empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 16px;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}

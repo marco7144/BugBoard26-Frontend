@@ -70,17 +70,61 @@ class ApiClient {
     return requestHeaders;
   }
 
+  // Mappa dei messaggi di fallback descrittivi per ciascun codice di stato HTTP
+  private getDefaultErrorMessage(status: number): string {
+    switch (status) {
+      case 400:
+        return 'Richiesta non valida. Verifica i dati inseriti.';
+      case 401:
+        return 'Sessione scaduta o non valida. Effettua nuovamente il login.';
+      case 403:
+        return 'Accesso negato: non disponi dei permessi necessari per questa operazione.';
+      case 404:
+        return 'La risorsa richiesta non è stata trovata.';
+      case 409:
+        return 'Operazione non valida: la risorsa esiste già o crea un conflitto.';
+      case 500:
+      case 502:
+      case 503:
+        return 'Si è verificato un errore temporaneo sul server. Riprova più tardi.';
+      default:
+        return `Errore nella comunicazione con il server (codice ${status}).`;
+    }
+  }
+
+  // Estrae una descrizione testuale dal payload di errore restituito dal backend
+  private extractErrorMessageFromData(errorData: unknown): string {
+    if (typeof errorData === 'string' && errorData.trim() !== '') {
+      return errorData;
+    }
+    if (Array.isArray(errorData) && errorData.length > 0) {
+      return errorData.map(String).join(', ');
+    }
+    if (typeof errorData === 'object' && errorData !== null) {
+      const dataObj = errorData as Record<string, unknown>;
+      if (typeof dataObj.message === 'string' && dataObj.message.trim() !== '') {
+        return dataObj.message;
+      }
+      if (typeof dataObj.error === 'string' && dataObj.error.trim() !== '') {
+        return dataObj.error;
+      }
+    }
+    return '';
+  }
+
   // Estrae e normalizza i dati dell'errore dal corpo della risposta HTTP
   private async parseError(response: Response): Promise<ApiError> {
     const isJson = response.headers.get('content-type')?.includes('application/json');
-    const errorData: unknown = isJson ? await response.json() : await response.text();
-
-    let errorMessage = response.statusText || ('Errore HTTP ' + response.status);
-    if (typeof errorData === 'object' && errorData !== null && 'message' in errorData) {
-      errorMessage = String((errorData as { message: unknown }).message);
-    } else if (typeof errorData === 'string' && errorData.trim() !== '') {
-      errorMessage = errorData;
+    let errorData: unknown = null;
+    try {
+      errorData = isJson ? await response.json() : await response.text();
+    } catch {
+      // Ignora errori di parsing del body di errore
     }
+
+    const customMessage = this.extractErrorMessageFromData(errorData);
+    const fallbackMessage = response.statusText?.trim() || this.getDefaultErrorMessage(response.status);
+    const errorMessage = customMessage || fallbackMessage;
 
     return new ApiError(errorMessage, response.status, errorData);
   }
