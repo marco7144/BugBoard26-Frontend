@@ -1,0 +1,399 @@
+/* ==========================================================================
+   ISSUE FILTER BAR CSS (Stitch Design System & Dual Theme)
+   ========================================================================== */
+
+.issue-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.issue-filter-bar:hover {
+  border-color: #cbd5e1;
+}
+
+[data-theme="dark"] .issue-filter-bar:hover {
+  border-color: var(--color-border-focus);
+}
+
+/* --- 1. Riga Principale (Search, Filtri Dropdown, Sort, Reset) --- */
+.filter-bar-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Campo Ricerca Testuale */
+.filter-search-wrapper {
+  position: relative;
+  flex: 1 1 240px;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+}
+
+.filter-search-icon {
+  position: absolute;
+  left: 11px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.filter-search-input {
+  width: 100%;
+  padding: 8px 32px 8px 34px;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.filter-search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.filter-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(0, 74, 198, 0.15);
+}
+
+[data-theme="dark"] .filter-search-input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.filter-search-clear {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  background-color: transparent;
+  transition: all var(--transition-fast);
+}
+
+.filter-search-clear:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-border);
+}
+
+/* Gruppo Dropdown Filtri */
+.filter-selects-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-select-icon {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+  color: var(--color-text-muted);
+}
+
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 8px 28px 8px 30px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c98a9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+
+.filter-select:hover {
+  border-color: #cbd5e1;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-hover);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 74, 198, 0.15);
+}
+
+/* Stato attivo per selettore con filtro applicato */
+.filter-select-active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .filter-select-active {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* Gruppo Ordinamento */
+.filter-sort-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-sort-select {
+  padding-left: 28px;
+}
+
+.filter-sort-dir-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.filter-sort-dir-btn:hover {
+  color: var(--color-primary);
+  background-color: var(--color-surface-hover);
+  border-color: #cbd5e1;
+}
+
+.filter-sort-dir-label {
+  letter-spacing: 0.05em;
+}
+
+/* Pulsante Reset Filtri */
+.filter-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-error);
+  background-color: var(--color-error-bg);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-left: auto;
+  user-select: none;
+}
+
+.filter-reset-btn:hover {
+  background-color: var(--color-error);
+  color: var(--color-text-inverse);
+  border-color: var(--color-error);
+  box-shadow: var(--shadow-xs);
+}
+
+.filter-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background-color: var(--color-error);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+}
+
+.filter-reset-btn:hover .filter-count-badge {
+  background-color: var(--color-text-inverse);
+  color: var(--color-error);
+}
+
+/* --- 2. Riga Inferiore (Pillole Filtri Attivi & Risultati) --- */
+.filter-bar-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--color-border);
+}
+
+.filter-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-chips-caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+}
+
+.filter-chips-empty {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* Singola Pillola / Chip */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  animation: fadeIn 150ms ease-in-out;
+}
+
+.filter-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-left: 2px;
+}
+
+.filter-chip-remove:hover {
+  color: var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
+/* Varianti semantiche Chip */
+.filter-chip-state {
+  border-color: rgba(13, 148, 136, 0.3);
+  background-color: var(--color-surface);
+}
+
+.filter-chip-type {
+  border-color: rgba(79, 70, 229, 0.3);
+  background-color: var(--color-surface);
+}
+
+.filter-chip-priority {
+  border-color: rgba(234, 88, 12, 0.3);
+  background-color: var(--color-surface);
+}
+
+.filter-chip-user {
+  border-color: rgba(37, 99, 235, 0.3);
+  background-color: var(--color-surface);
+}
+
+.filter-chip-label {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.filter-chip-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+/* Indicatore Risultati */
+.filter-results-count {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.filter-results-count strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* --- Responsive Breakpoints --- */
+@media (max-width: 900px) {
+  .filter-bar-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-search-wrapper {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .filter-selects-group {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .filter-select-wrapper {
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+
+  .filter-sort-group {
+    width: 100%;
+  }
+
+  .filter-sort-select {
+    flex: 1;
+    width: 100%;
+  }
+
+  .filter-reset-btn {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filter-bar-chips-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
