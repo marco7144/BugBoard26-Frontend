@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Search,
   X,
@@ -12,6 +12,8 @@ import {
   Flame,
   CircleDot,
   Layers,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import type {
   IssuePriority,
@@ -94,34 +96,133 @@ export function getActiveFilterCount(filters: IssueFilterState): number {
   return count;
 }
 
+/**
+ * Singola opzione per il Custom Filter Dropdown.
+ */
+export interface FilterDropdownOption {
+  value: string;
+  label: string;
+  icon?: React.ReactNode;
+  colorDot?: string;
+}
+
+interface FilterDropdownProps {
+  label: string;
+  icon: React.ReactNode;
+  value: string;
+  options: FilterDropdownOption[];
+  onChange: (value: string) => void;
+  title?: string;
+  isActive?: boolean;
+}
+
+/**
+ * Componente Custom Dropdown compatto con altezza massima controllata e scrollbar interna.
+ */
+const FilterDropdown: React.FC<FilterDropdownProps> = ({
+  label,
+  icon,
+  value,
+  options,
+  onChange,
+  title,
+  isActive = false,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Chiudi al click esterno o pressione Escape
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEvents = (e: MouseEvent | KeyboardEvent) => {
+      if (
+        (e instanceof MouseEvent && dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) ||
+        (e instanceof KeyboardEvent && e.key === 'Escape')
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleEvents);
+    document.addEventListener('keydown', handleEvents);
+    return () => {
+      document.removeEventListener('mousedown', handleEvents);
+      document.removeEventListener('keydown', handleEvents);
+    };
+  }, [isOpen]);
+
+  const selectedOption = options.find((opt) => opt.value === value);
+  const displayLabel = selectedOption && selectedOption.value !== '' ? selectedOption.label : label;
+
+  return (
+    <div className="filter-dropdown-wrapper" ref={dropdownRef} title={title}>
+      <button
+        type="button"
+        className={`filter-dropdown-btn ${isActive ? 'filter-dropdown-btn-active' : ''} ${
+          isOpen ? 'filter-dropdown-btn-open' : ''
+        }`}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <span className="filter-dropdown-icon">{icon}</span>
+        <span className="filter-dropdown-label">{displayLabel}</span>
+        <ChevronDown
+          size={13}
+          className={`filter-dropdown-chevron ${isOpen ? 'filter-dropdown-chevron-rotated' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="filter-dropdown-menu" role="listbox">
+          {options.map((opt) => {
+            const isSelected = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                className={`filter-dropdown-item ${
+                  isSelected ? 'filter-dropdown-item-selected' : ''
+                }`}
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+                role="option"
+                aria-selected={isSelected}
+              >
+                {opt.colorDot && (
+                  <span
+                    className="filter-chip-color-dot"
+                    style={{ backgroundColor: opt.colorDot }}
+                  />
+                )}
+                {opt.icon && <span className="filter-dropdown-item-icon">{opt.icon}</span>}
+                <span className="filter-dropdown-item-text">{opt.label}</span>
+                {isSelected && <Check size={13} className="filter-dropdown-check" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export interface IssueFilterBarProps {
-  /** Stato corrente dei filtri e dell'ordinamento */
   filters: IssueFilterState;
-  /** Callback invocata alla modifica dei filtri */
   onFilterChange: (newFilters: IssueFilterState) => void;
-  /** Lista opzionale dei partecipanti al progetto per il filtro Assegnatario */
   participants?: UserResponseDto[];
-  /** Lista opzionale delle etichette globali per il filtro Label */
   labels?: LabelResponseDto[];
-  /** Callback opzionale invocata al reset completo dei filtri */
   onResetFilters?: () => void;
-  /** Conteggio totale delle issue nel progetto (per indicatore numerico) */
   totalCount?: number;
-  /** Conteggio delle issue risultanti dopo il filtraggio */
   filteredCount?: number;
-  /** Classe CSS aggiuntiva per il contenitore */
   className?: string;
 }
 
 /**
  * Barra di Filtraggio & Ordinamento Issue (F3).
- *
- * Responsabilità:
- * - Filtri per Stato, Tipo, Priorità, Assegnatario e Label.
- * - Ricerca testuale rapida su titolo/descrizione/ID.
- * - Ordinamento per data, priorità, titolo, stato, tipo con toggle direzione (ASC/DESC).
- * - Chip visivi dei filtri attivi con rimozione rapida del singolo filtro.
- * - Reset globale dei filtri.
  */
 export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
   filters,
@@ -137,80 +238,44 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
   const isFiltered = hasActiveFilters(filters);
 
   // Aggiorna un singolo campo mantenendo gli altri
-  const updateField = useCallback(
-    <K extends keyof IssueFilterState>(key: K, value: IssueFilterState[K]) => {
-      onFilterChange({
-        ...filters,
-        [key]: value,
-      });
-    },
-    [filters, onFilterChange]
-  );
-
-  // Gestione ricerca testuale
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateField('search', e.target.value);
+  const updateField = <K extends keyof IssueFilterState>(key: K, value: IssueFilterState[K]) => {
+    onFilterChange({ ...filters, [key]: value });
   };
-
-  const handleClearSearch = () => {
-    updateField('search', '');
-  };
-
-  // Gestione selettori dropdown
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    updateField('type', val ? (val as IssueType) : undefined);
-  };
-
-  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    updateField('state', val ? (val as IssueState) : undefined);
-  };
-
-  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    updateField('priority', val ? (val as IssuePriority) : undefined);
-  };
-
-  const handleAssigneeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    updateField('assignedToId', val ? Number(val) : undefined);
-  };
-
-  const handleLabelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    updateField('labelId', val ? Number(val) : undefined);
-  };
-
-  const handleSortByChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateField('sortBy', e.target.value);
-  };
-
-  // Inverte la direzione dell'ordinamento (ASC <-> DESC)
-  const handleToggleSortDir = () => {
-    const nextDir: SortDirection = filters.sortDir === 'asc' ? 'desc' : 'asc';
-    updateField('sortDir', nextDir);
-  };
-
-  // Reset completo
-  const handleReset = () => {
-    if (onResetFilters) {
-      onResetFilters();
-    } else {
-      onFilterChange(DEFAULT_ISSUE_FILTERS);
-    }
-  };
-
-  // Rimozione selettiva singoli filtri dai chip
-  const handleRemoveType = () => updateField('type', undefined);
-  const handleRemoveState = () => updateField('state', undefined);
-  const handleRemovePriority = () => updateField('priority', undefined);
-  const handleRemoveAssignee = () => updateField('assignedToId', undefined);
-  const handleRemoveLabel = () => updateField('labelId', undefined);
 
   // Risoluzione etichette leggibili per i chip
   const selectedAssignee = participants.find((p) => p.id === filters.assignedToId);
   const selectedLabel = labels.find((l) => l.id === filters.labelId);
+
+  // Generazione opzioni per i Custom Dropdown
+  const stateOptions: FilterDropdownOption[] = [
+    { value: '', label: 'Stato: Tutti' },
+    ...Object.entries(STATUS_CONFIG).map(([key, cfg]) => ({ value: key, label: cfg.label })),
+  ];
+
+  const typeOptions: FilterDropdownOption[] = [
+    { value: '', label: 'Tipo: Tutti' },
+    ...Object.entries(TYPE_CONFIG).map(([key, cfg]) => ({ value: key, label: cfg.label })),
+  ];
+
+  const priorityOptions: FilterDropdownOption[] = [
+    { value: '', label: 'Priorità: Tutte' },
+    ...Object.entries(PRIORITY_CONFIG).map(([key, cfg]) => ({ value: key, label: cfg.label })),
+  ];
+
+  const assigneeOptions: FilterDropdownOption[] = [
+    { value: '', label: 'Assegnatario: Tutti' },
+    ...participants.map((p) => ({ value: String(p.id), label: p.username })),
+  ];
+
+  const labelOptions: FilterDropdownOption[] = [
+    { value: '', label: 'Etichetta: Tutte' },
+    ...labels.map((l) => ({ value: String(l.id), label: l.name, colorDot: l.color })),
+  ];
+
+  const sortOptions: FilterDropdownOption[] = SORT_FIELD_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: `Ordina: ${opt.label}`,
+  }));
 
   return (
     <div className={`issue-filter-bar ${className}`}>
@@ -224,14 +289,14 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
             className="filter-search-input"
             placeholder="Cerca per titolo, ID, testo..."
             value={filters.search ?? ''}
-            onChange={handleSearchChange}
+            onChange={(e) => updateField('search', e.target.value)}
             aria-label="Cerca issue"
           />
           {filters.search && (
             <button
               type="button"
               className="filter-search-clear"
-              onClick={handleClearSearch}
+              onClick={() => updateField('search', '')}
               title="Cancella ricerca"
               aria-label="Cancella testo di ricerca"
             >
@@ -243,128 +308,93 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
         {/* Gruppo Dropdown Filtri */}
         <div className="filter-selects-group">
           {/* Filtro Stato */}
-          <div className="filter-select-wrapper" title="Filtra per Stato">
-            <CircleDot size={14} className="filter-select-icon text-muted" />
-            <select
-              className={`filter-select ${filters.state ? 'filter-select-active' : ''}`}
-              value={filters.state ?? ''}
-              onChange={handleStateChange}
-              aria-label="Filtra per Stato"
-            >
-              <option value="">Stato: Tutti</option>
-              {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                <option key={key} value={key}>
-                  {cfg.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterDropdown
+            label="Stato: Tutti"
+            icon={<CircleDot size={14} className="text-muted" />}
+            value={filters.state ?? ''}
+            options={stateOptions}
+            onChange={(val) => updateField('state', val ? (val as IssueState) : undefined)}
+            title="Filtra per Stato"
+            isActive={Boolean(filters.state)}
+          />
 
           {/* Filtro Tipo */}
-          <div className="filter-select-wrapper" title="Filtra per Tipo">
-            <Layers size={14} className="filter-select-icon text-muted" />
-            <select
-              className={`filter-select ${filters.type ? 'filter-select-active' : ''}`}
-              value={filters.type ?? ''}
-              onChange={handleTypeChange}
-              aria-label="Filtra per Tipo"
-            >
-              <option value="">Tipo: Tutti</option>
-              {Object.entries(TYPE_CONFIG).map(([key, cfg]) => (
-                <option key={key} value={key}>
-                  {cfg.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterDropdown
+            label="Tipo: Tutti"
+            icon={<Layers size={14} className="text-muted" />}
+            value={filters.type ?? ''}
+            options={typeOptions}
+            onChange={(val) => updateField('type', val ? (val as IssueType) : undefined)}
+            title="Filtra per Tipo"
+            isActive={Boolean(filters.type)}
+          />
 
           {/* Filtro Priorità */}
-          <div className="filter-select-wrapper" title="Filtra per Priorità">
-            <Flame size={14} className="filter-select-icon text-muted" />
-            <select
-              className={`filter-select ${filters.priority ? 'filter-select-active' : ''}`}
-              value={filters.priority ?? ''}
-              onChange={handlePriorityChange}
-              aria-label="Filtra per Priorità"
-            >
-              <option value="">Priorità: Tutte</option>
-              {Object.entries(PRIORITY_CONFIG).map(([key, cfg]) => (
-                <option key={key} value={key}>
-                  {cfg.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterDropdown
+            label="Priorità: Tutte"
+            icon={<Flame size={14} className="text-muted" />}
+            value={filters.priority ?? ''}
+            options={priorityOptions}
+            onChange={(val) => updateField('priority', val ? (val as IssuePriority) : undefined)}
+            title="Filtra per Priorità"
+            isActive={Boolean(filters.priority)}
+          />
 
-          {/* Filtro Assegnatario (se partecipanti disponibili) */}
+          {/* Filtro Assegnatario */}
           {participants.length > 0 && (
-            <div className="filter-select-wrapper" title="Filtra per Assegnatario">
-              <User size={14} className="filter-select-icon text-muted" />
-              <select
-                className={`filter-select ${filters.assignedToId !== undefined ? 'filter-select-active' : ''}`}
-                value={filters.assignedToId ?? ''}
-                onChange={handleAssigneeChange}
-                aria-label="Filtra per Assegnatario"
-              >
-                <option value="">Assegnatario: Tutti</option>
-                {participants.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.username}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <FilterDropdown
+              label="Assegnatario: Tutti"
+              icon={<User size={14} className="text-muted" />}
+              value={filters.assignedToId !== undefined ? String(filters.assignedToId) : ''}
+              options={assigneeOptions}
+              onChange={(val) => updateField('assignedToId', val ? Number(val) : undefined)}
+              title="Filtra per Assegnatario"
+              isActive={filters.assignedToId !== undefined}
+            />
           )}
 
-          {/* Filtro Label (se label disponibili) */}
+          {/* Filtro Label */}
           {labels.length > 0 && (
-            <div className="filter-select-wrapper" title="Filtra per Etichetta">
-              <Tag size={14} className="filter-select-icon text-muted" />
-              <select
-                className={`filter-select ${filters.labelId !== undefined ? 'filter-select-active' : ''}`}
-                value={filters.labelId ?? ''}
-                onChange={handleLabelChange}
-                aria-label="Filtra per Etichetta"
-              >
-                <option value="">Etichetta: Tutte</option>
-                {labels.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <FilterDropdown
+              label="Etichetta: Tutte"
+              icon={<Tag size={14} className="text-muted" />}
+              value={filters.labelId !== undefined ? String(filters.labelId) : ''}
+              options={labelOptions}
+              onChange={(val) => updateField('labelId', val ? Number(val) : undefined)}
+              title="Filtra per Etichetta"
+              isActive={filters.labelId !== undefined}
+            />
           )}
         </div>
 
         {/* Gruppo Ordinamento (Sort By + Sort Dir Toggle) */}
         <div className="filter-sort-group">
-          <div className="filter-select-wrapper" title="Ordina per">
-            <ArrowDownUp size={14} className="filter-select-icon text-muted" />
-            <select
-              className="filter-select filter-sort-select"
-              value={filters.sortBy ?? 'creationDate'}
-              onChange={handleSortByChange}
-              aria-label="Campo di ordinamento"
-            >
-              {SORT_FIELD_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  Ordina: {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterDropdown
+            label={`Ordina: ${
+              SORT_FIELD_OPTIONS.find((o) => o.value === (filters.sortBy ?? 'creationDate'))?.label ||
+              'Data di creazione'
+            }`}
+            icon={<ArrowDownUp size={14} className="text-muted" />}
+            value={filters.sortBy ?? 'creationDate'}
+            options={sortOptions}
+            onChange={(val) => updateField('sortBy', val)}
+            title="Ordina per"
+          />
 
           <button
             type="button"
             className="filter-sort-dir-btn"
-            onClick={handleToggleSortDir}
+            onClick={() =>
+              updateField('sortDir', filters.sortDir === 'asc' ? 'desc' : 'asc')
+            }
             title={
               filters.sortDir === 'asc'
                 ? 'Ordinamento Crescente (clicca per decrescente)'
                 : 'Ordinamento Decrescente (clicca per crescente)'
             }
-            aria-label={`Inverti direzione ordinamento. Attuale: ${filters.sortDir === 'asc' ? 'Crescente' : 'Decrescente'}`}
+            aria-label={`Inverti direzione ordinamento. Attuale: ${
+              filters.sortDir === 'asc' ? 'Crescente' : 'Decrescente'
+            }`}
           >
             {filters.sortDir === 'asc' ? <ArrowUp size={15} /> : <ArrowDown size={15} />}
             <span className="filter-sort-dir-label">
@@ -378,7 +408,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
           <button
             type="button"
             className="filter-reset-btn"
-            onClick={handleReset}
+            onClick={() => (onResetFilters ? onResetFilters() : onFilterChange(DEFAULT_ISSUE_FILTERS))}
             title="Ripristina filtri e ordinamento di default"
             aria-label="Resetta filtri"
           >
@@ -407,7 +437,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={handleClearSearch}
+                  onClick={() => updateField('search', '')}
                   aria-label="Rimuovi filtro testo"
                 >
                   <X size={12} />
@@ -423,7 +453,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={handleRemoveState}
+                  onClick={() => updateField('state', undefined)}
                   aria-label="Rimuovi filtro stato"
                 >
                   <X size={12} />
@@ -439,7 +469,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={handleRemoveType}
+                  onClick={() => updateField('type', undefined)}
                   aria-label="Rimuovi filtro tipo"
                 >
                   <X size={12} />
@@ -455,7 +485,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={handleRemovePriority}
+                  onClick={() => updateField('priority', undefined)}
                   aria-label="Rimuovi filtro priorità"
                 >
                   <X size={12} />
@@ -471,7 +501,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={handleRemoveAssignee}
+                  onClick={() => updateField('assignedToId', undefined)}
                   aria-label="Rimuovi filtro assegnatario"
                 >
                   <X size={12} />
@@ -493,7 +523,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={handleRemoveLabel}
+                  onClick={() => updateField('labelId', undefined)}
                   aria-label="Rimuovi filtro etichetta"
                 >
                   <X size={12} />
