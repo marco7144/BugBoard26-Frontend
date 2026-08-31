@@ -535,6 +535,7 @@ code, kbd, samp, pre {
   padding: 20px;
   overflow-y: auto;
   flex: 1;
+  scrollbar-gutter: stable;
 }
 
 .modal-footer {
