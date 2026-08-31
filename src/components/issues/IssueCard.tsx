@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Image as ImageIcon, UserX } from 'lucide-react';
 import type { IssueResponseDto } from '../../services/issueService';
 import { StatusBadge, PriorityBadge, TypeBadge } from '../common/Badge';
+import { LabelBadge } from '../labels/LabelBadge';
 import './IssueList.css';
 
 export interface IssueCardProps {
@@ -106,28 +107,13 @@ export const IssueCard: React.FC<IssueCardProps> = ({
       {(hasLabels || hasImage) && (
         <div className="issue-card-tags">
           {hasLabels &&
-            issue.labels?.map((label) => {
-              const labelColor = label.color || '#64748b';
-              return (
-                <span
-                  key={label.id ?? label.name}
-                  className="issue-card-label"
-                  style={{
-                    backgroundColor: `${labelColor}1A`, // 10% opacità hex
-                    color: labelColor,
-                    border: `1px solid ${labelColor}33`, // 20% opacità hex
-                  }}
-                  title={`Etichetta: ${label.name}`}
-                >
-                  <span
-                    className="issue-card-label-dot"
-                    style={{ backgroundColor: labelColor }}
-                    aria-hidden="true"
-                  />
-                  {label.name}
-                </span>
-              );
-            })}
+            issue.labels?.map((label) => (
+              <LabelBadge
+                key={label.id ?? label.name}
+                label={label}
+                size="sm"
+              />
+            ))}
 
           {hasImage && (
             <span className="issue-card-attachment" title="Questa issue include un'immagine allegata">
