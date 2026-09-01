@@ -121,6 +121,12 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
     const name = searchQuery.trim();
     if (!name || disabled || !allowCreate) return;
 
+    // Controllo client-side duplicati
+    if (labelsList.some((l) => (l.name || '').trim().toLowerCase() === name.toLowerCase())) {
+      setCreateError(`Un'etichetta con il nome "${name}" esiste già.`);
+      return;
+    }
+
     setIsCreating(true);
     setCreateError(null);
 

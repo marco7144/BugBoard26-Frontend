@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LABEL BADGE & LABEL SELECTOR STYLES (KISS - Step 18)
+   LABEL BADGE & LABEL SELECTOR STYLES
    ========================================================================== */
 
 /* 1. LabelBadge */
@@ -302,3 +302,185 @@
   gap: 6px;
   margin-top: 2px;
 }
+
+/* ==========================================================================
+   6. LABEL MANAGER MODAL
+   ========================================================================== */
+.label-manager-modal {
+  max-width: 520px;
+  width: 100%;
+}
+
+.label-manager-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.label-manager-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label-manager-create-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.label-manager-input {
+  flex: 1;
+  min-width: 140px;
+}
+
+.label-manager-colors {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.label-color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full, 9999px);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast, 150ms ease);
+}
+.label-color-dot:hover { transform: scale(1.15); }
+.label-color-dot.active {
+  border-color: var(--color-text-primary, #131b2e);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px var(--color-surface, #ffffff);
+}
+
+.label-color-dot-sm { width: 16px; height: 16px; }
+
+.label-color-input-native {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  background: none;
+}
+
+.label-color-input-native-sm { width: 18px; height: 18px; }
+
+.label-manager-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+}
+
+.label-manager-divider {
+  border: none;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+  margin: 2px 0;
+}
+
+.label-manager-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label-manager-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted, #8c98a9);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs, 4px);
+}
+.label-manager-refresh-btn:hover { color: var(--color-primary, #004ac6); }
+
+.label-manager-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.label-manager-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: var(--color-surface-variant, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+}
+
+.label-manager-item--editing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.label-edit-name-input {
+  flex: 1;
+  min-width: 100px;
+}
+
+.label-manager-colors-sm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.label-manager-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.label-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm, 6px);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted, #8c98a9);
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms ease);
+}
+.label-action-btn:hover {
+  background-color: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #131b2e);
+}
+.label-action-delete:hover {
+  color: var(--color-danger, #dc2626);
+  background-color: rgba(220, 38, 38, 0.08);
+}
+
+.label-edit-action-btn {
+  padding: 4px 8px;
+  min-width: 28px;
+}
+
+.label-manager-loading,
+.label-manager-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  color: var(--color-text-muted, #8c98a9);
+  font-size: 0.85rem;
+}
+

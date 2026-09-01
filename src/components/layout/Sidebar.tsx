@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Bug, LayoutDashboard, Users, FolderKanban, Plus } from 'lucide-react';
+import { Bug, LayoutDashboard, Users, FolderKanban, Plus, Tag } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProject } from '../../context/ProjectContext';
 import { CreateProjectModal } from '../projects/CreateProjectModal';
 import { ProjectParticipantsModal } from '../projects/ProjectParticipantsModal';
+import { LabelManagerModal } from '../labels/LabelManagerModal';
 import './Sidebar.css';
 
 /**
  * Barra di navigazione laterale (Sidebar).
- * Responsabilità: Branding, Selettore Progetto Attivo, Trigger Modali Progetto e Link di Navigazione Principale.
+ * Responsabilità: Branding, Selettore Progetto Attivo, Trigger Modali Progetto, Gestione Etichette e Link di Navigazione Principale.
  */
 export const Sidebar: React.FC = () => {
   const { isAdmin } = useAuth();
   const { selectedProject, projects, selectProjectById } = useProject();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState<boolean>(false);
+  const [isLabelsModalOpen, setIsLabelsModalOpen] = useState<boolean>(false);
 
   const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const projectId = Number(e.target.value);
@@ -100,6 +102,16 @@ export const Sidebar: React.FC = () => {
             <span>Dashboard</span>
           </NavLink>
 
+          <button
+            type="button"
+            className="sidebar-link sidebar-btn-action"
+            onClick={() => setIsLabelsModalOpen(true)}
+            title="Gestione Globale Etichette"
+          >
+            <Tag size={18} />
+            <span>Etichette</span>
+          </button>
+
           {isAdmin && (
             <NavLink
               to="/admin/users"
@@ -128,6 +140,12 @@ export const Sidebar: React.FC = () => {
           onClose={() => setIsParticipantsModalOpen(false)}
         />
       )}
+
+      {/* Finestra Modale Gestione Etichette */}
+      <LabelManagerModal
+        isOpen={isLabelsModalOpen}
+        onClose={() => setIsLabelsModalOpen(false)}
+      />
     </>
   );
 };
