@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import './MainLayout.css';
 
 interface MainLayoutProps {
   children?: React.ReactNode;
@@ -14,11 +13,11 @@ interface MainLayoutProps {
  */
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div className="main-layout">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-[#0b101b] text-slate-900 dark:text-slate-100 transition-colors">
       <Sidebar />
-      <div className="main-wrapper">
+      <div className="flex-1 min-w-0 flex flex-col h-screen">
         <Header />
-        <main className="main-content">
+        <main className="flex-1 min-w-0 overflow-y-auto p-6">
           {children || <Outlet />}
         </main>
       </div>

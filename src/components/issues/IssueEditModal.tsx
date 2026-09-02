@@ -144,6 +144,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
   };
 
   return (
+<<<<<<< HEAD
     <dialog
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
       open
@@ -155,6 +156,14 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 rounded-t-2xl gap-3">
           <div className="flex items-center gap-2.5 flex-wrap">
             <h2 id="edit-issue-title" className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100 m-0">
+=======
+    <dialog className="modal-overlay" open aria-labelledby="edit-issue-title" aria-modal="true">
+      <div className="modal-container w-full max-w-185 overflow-visible">
+        {/* Header */}
+        <div className="modal-header">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h2 id="edit-issue-title" className="modal-title">
+>>>>>>> c3cd6264e140fa73d549280f53e83244e0289eaa
               <Pencil size={18} className="text-blue-600 dark:text-blue-400" />
               <span>Modifica Issue</span>
             </h2>
@@ -163,6 +172,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
             </span>
             <StatusBadge status={issue.state} size="sm" />
           </div>
+<<<<<<< HEAD
           <button
             type="button"
             className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
@@ -170,13 +180,20 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
             disabled={isSubmitting}
             aria-label="Chiudi finestra"
           >
+=======
+          <button type="button" className="modal-close-btn" onClick={onClose} disabled={isSubmitting}>
+>>>>>>> c3cd6264e140fa73d549280f53e83244e0289eaa
             <X size={18} />
           </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
+<<<<<<< HEAD
           <div className="flex flex-col gap-3.5 p-5 sm:p-6 overflow-visible">
+=======
+          <div className="modal-body flex flex-col gap-3.5 p-5 sm:p-6">
+>>>>>>> c3cd6264e140fa73d549280f53e83244e0289eaa
             {/* Banner permessi State Pattern */}
             {!canEdit && (
               <div
@@ -342,6 +359,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
           </div>
 
           {/* Footer */}
+<<<<<<< HEAD
           <div className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-2xl">
             <button
               type="button"
@@ -357,6 +375,14 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-lg cursor-pointer shadow-xs transition-all disabled:opacity-50"
                 disabled={isSubmitting}
               >
+=======
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
+              {canEdit ? 'Annulla' : 'Chiudi'}
+            </button>
+            {canEdit && (
+              <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+>>>>>>> c3cd6264e140fa73d549280f53e83244e0289eaa
                 {isSubmitting ? (
                   <>
                     <Loader2 size={15} className="animate-spin" />

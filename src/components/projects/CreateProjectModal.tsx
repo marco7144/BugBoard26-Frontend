@@ -3,7 +3,6 @@ import { FolderPlus, X, AlertCircle, Loader2 } from 'lucide-react';
 import { projectService, type ProjectResponseDto } from '../../services/projectService';
 import { useProject } from '../../context/ProjectContext';
 import { PRESET_ICONS, svgToBase64 } from './projectPresets';
-import './ProjectModal.css';
 
 export interface CreateProjectModalProps {
   /** Indica se la finestra modale è visibile */
@@ -155,21 +154,24 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
   return (
     <dialog
-      className="modal-overlay"
+      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-slate-900/55 backdrop-blur-xs box-border animate-in fade-in duration-150"
       open
       aria-labelledby="create-project-title"
       aria-modal="true"
     >
-      <div ref={modalContainerRef} className="modal-container">
+      <div
+        ref={modalContainerRef}
+        className="relative w-full max-w-130 max-h-[90vh] bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+      >
         {/* Intestazione Modale */}
-        <div className="modal-header">
-          <h2 id="create-project-title" className="modal-title">
-            <FolderPlus size={20} className="text-primary" />
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 gap-3">
+          <h2 id="create-project-title" className="flex items-center gap-2.5 text-lg font-semibold text-slate-900 dark:text-slate-100 m-0">
+            <FolderPlus size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
             <span>Nuovo Progetto</span>
           </h2>
           <button
             type="button"
-            className="modal-close-btn"
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
             onClick={onClose}
             disabled={isSubmitting}
             aria-label="Chiudi finestra"
@@ -179,26 +181,33 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         </div>
 
         {/* Corpo del Form */}
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="modal-body">
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col flex-1 overflow-hidden m-0">
+          <div className="p-5 sm:p-6 overflow-y-auto flex-1 flex flex-col gap-4">
             {/* Banner Errore API */}
             {apiError && (
-              <div className="alert alert-error" role="alert">
-                <AlertCircle size={16} />
+              <div
+                className="flex items-start gap-2.5 p-3 rounded-lg text-[13px] leading-snug bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400"
+                role="alert"
+              >
+                <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
                 <span>{apiError}</span>
               </div>
             )}
 
             {/* Campo Nome Progetto */}
-            <div className="form-group">
-              <label htmlFor="project-name" className="form-label">
-                Nome Progetto <span className="text-danger">*</span>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="project-name" className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                Nome Progetto <span className="text-red-500">*</span>
               </label>
               <input
                 ref={nameInputRef}
                 id="project-name"
                 type="text"
-                className={`form-input ${nameError ? 'form-input-error' : ''}`}
+                className={`w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
+                  nameError
+                    ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
+                    : 'border-slate-300 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-blue-600/20'
+                }`}
                 placeholder="es. BugBoard Client Frontend"
                 value={name}
                 onChange={handleNameChange}
@@ -206,31 +215,47 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 maxLength={50}
                 autoComplete="off"
               />
-              {nameError && <span className="form-error">{nameError}</span>}
+              {nameError && (
+                <span className="text-xs text-red-600 dark:text-red-400">
+                  {nameError}
+                </span>
+              )}
             </div>
 
             {/* Sezione Selezione Icona */}
-            <div className="project-icon-section">
-              <span className="form-label">Icona del Progetto</span>
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Icona del Progetto</span>
 
               {/* Griglia Icone Predefinite */}
-              <div className="project-icon-grid">
+              <div className="grid grid-cols-4 gap-2">
                 {PRESET_ICONS.map((preset) => {
                   const isSelected = selectedPresetId === preset.id;
                   return (
                     <button
                       key={preset.id}
                       type="button"
-                      className={`project-icon-preset ${isSelected ? 'active' : ''}`}
+                      className={`flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-lg border-2 transition-all cursor-pointer select-none font-sans ${
+                        isSelected
+                          ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/50 ring-1 ring-blue-600/30'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#151c2c] hover:border-blue-500 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                      }`}
                       onClick={() => handlePresetSelect(preset.id)}
                       disabled={isSubmitting}
                       title={`Seleziona icona ${preset.name}`}
                     >
                       <div
-                        className="project-icon-preset-svg"
+                        className="w-7 h-7 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
                         dangerouslySetInnerHTML={{ __html: preset.svg }}
                       />
-                      <span className="project-icon-preset-label">{preset.name}</span>
+                      <span
+                        className={`text-[11px] leading-none ${
+                          isSelected
+                            ? 'font-semibold text-blue-600 dark:text-blue-400'
+                            : 'font-medium text-slate-500 dark:text-slate-400'
+                        }`}
+                      >
+                        {preset.name}
+                      </span>
                     </button>
                   );
                 })}
@@ -238,30 +263,27 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             </div>
 
             {/* Anteprima Live del Progetto */}
-            <div className="form-group">
-              <span className="form-label">Anteprima Scheda Progetto</span>
-              <div className="project-preview-card">
-                <div className="project-preview-icon">
-                  <div
-                    className="project-icon-preset-svg"
-                    dangerouslySetInnerHTML={{ __html: activePreset.svg }}
-                  />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Anteprima Scheda Progetto</span>
+              <div className="flex items-center gap-3 px-3.5 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-lg">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 [&>div]:w-6 [&>div]:h-6 [&>div>svg]:w-full [&>div>svg]:h-full">
+                  <div dangerouslySetInnerHTML={{ __html: activePreset.svg }} />
                 </div>
-                <div className="project-preview-details">
-                  <span className="project-preview-name">
+                <div className="flex flex-col gap-0.5 overflow-hidden min-w-0">
+                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                     {name.trim() || 'Nome del Progetto'}
                   </span>
-                  <span className="project-preview-hint">Creato da Amministratore</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">Creato da Amministratore</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Footer con Azioni */}
-          <div className="modal-footer">
+          <div className="flex items-center justify-end gap-3 px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#111827]">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
               onClick={onClose}
               disabled={isSubmitting}
             >
@@ -269,17 +291,17 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-xs disabled:opacity-60 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-600/30"
               disabled={isSubmitting || !name.trim()}
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 size={16} className="animate-spin" />
+                  <Loader2 size={16} className="animate-spin shrink-0" />
                   <span>Creazione in corso...</span>
                 </>
               ) : (
                 <>
-                  <FolderPlus size={16} />
+                  <FolderPlus size={16} className="shrink-0" />
                   <span>Crea Progetto</span>
                 </>
               )}
