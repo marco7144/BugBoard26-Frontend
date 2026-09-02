@@ -10,7 +10,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import type { LoginCredentials } from '../../types/auth';
-import './LoginForm.css';
 
 export interface LoginFormProps {
   /** Callback invocato all'invio del form con credenziali validate */
@@ -86,42 +85,54 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   return (
-    <div className="card login-card-wrapper">
+    <div className="w-full max-w-110 flex flex-col gap-5 p-7 sm:p-8 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
       {/* Brand Header */}
-      <div className="login-header">
-        <div className="login-logo-badge" title="BugBoard26 Logo">
+      <div className="text-center flex flex-col items-center gap-1.5 mb-1">
+        <div
+          className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 mb-1 transition-transform duration-150 hover:scale-105"
+          title="BugBoard26 Logo"
+        >
           <Bug size={26} strokeWidth={2.4} />
         </div>
-        <h1 className="login-title">
-          BugBoard<span>26</span>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          BugBoard<span className="text-blue-600 dark:text-blue-500">26</span>
         </h1>
-        <p className="login-subtitle">Accedi alla piattaforma di issue tracking</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Accedi alla piattaforma di issue tracking
+        </p>
       </div>
 
       {/* Banner Errore Globale / Backend */}
       {errorMessage && (
-        <div className="login-alert-error" role="alert">
-          <AlertCircle size={18} className="login-alert-icon" />
+        <div
+          className="flex items-start gap-2.5 p-3 rounded-lg text-[13px] leading-snug bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400"
+          role="alert"
+        >
+          <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
           <div>{errorMessage}</div>
         </div>
       )}
 
       {/* Form di Autenticazione */}
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         {/* Campo Email */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="login-email">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="login-email">
             Email
           </label>
-          <div className="input-icon-wrapper">
-            <span className="input-icon-left">
+          <div className="relative flex items-center group">
+            <span className="absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none flex items-center justify-center transition-colors group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400">
               <Mail size={18} />
             </span>
             <input
               id="login-email"
               type="email"
               name="email"
-              className={`form-input input-has-icon-left ${validationErrors.email ? 'input-invalid' : ''}`}
+              className={`w-full pl-9.5 pr-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
+                validationErrors.email
+                  ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
+                  : 'border-slate-300 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-blue-600/20'
+              }`}
               placeholder="nome.cognome@bugboard26.com"
               value={email}
               onChange={(e) => {
@@ -139,26 +150,30 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             />
           </div>
           {validationErrors.email && (
-            <span className="form-error">
+            <span className="text-xs text-red-600 dark:text-red-400">
               {validationErrors.email}
             </span>
           )}
         </div>
 
         {/* Campo Password */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="login-password">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="login-password">
             Password
           </label>
-          <div className="input-icon-wrapper">
-            <span className="input-icon-left">
+          <div className="relative flex items-center group">
+            <span className="absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none flex items-center justify-center transition-colors group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400">
               <Lock size={18} />
             </span>
             <input
               id="login-password"
               type={showPassword ? 'text' : 'password'}
               name="password"
-              className={`form-input input-has-icon-left input-has-toggle-right ${validationErrors.password ? 'input-invalid' : ''}`}
+              className={`w-full pl-9.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
+                validationErrors.password
+                  ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
+                  : 'border-slate-300 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-blue-600/20'
+              }`}
               placeholder="••••••••••••"
               value={password}
               onChange={(e) => {
@@ -176,7 +191,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             />
             <button
               type="button"
-              className="password-toggle-btn"
+              className="absolute right-2.5 p-1 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 rounded transition-colors focus:outline-none disabled:opacity-50"
               onClick={() => setShowPassword(!showPassword)}
               title={showPassword ? 'Nascondi password' : 'Mostra password'}
               aria-label={showPassword ? 'Nascondi password' : 'Mostra password'}
@@ -187,7 +202,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </button>
           </div>
           {validationErrors.password && (
-            <span className="form-error">
+            <span className="text-xs text-red-600 dark:text-red-400">
               {validationErrors.password}
             </span>
           )}
@@ -196,12 +211,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         {/* Pulsante Submit */}
         <button
           type="submit"
-          className="btn btn-primary login-submit-btn"
+          className="w-full inline-flex items-center justify-center gap-2 py-2.75 px-4.5 text-[15px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed rounded-lg shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-blue-600/30 mt-1.5"
           disabled={isLoading}
         >
           {isLoading ? (
             <>
-              <Loader2 size={18} className="login-spinner" />
+              <Loader2 size={18} className="animate-spin shrink-0" />
               <span>Autenticazione in corso...</span>
             </>
           ) : (

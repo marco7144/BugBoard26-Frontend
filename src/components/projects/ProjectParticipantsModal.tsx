@@ -15,7 +15,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useProject } from '../../context/ProjectContext';
 import { projectService } from '../../services/projectService';
 import { userService, type UserResponseDto } from '../../services/userService';
-import './ProjectModal.css';
 
 export interface ProjectParticipantsModalProps {
   /** Indica se la finestra modale è visibile */
@@ -203,8 +202,8 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
   const renderParticipantsContent = () => {
     if (isLoading) {
       return (
-        <div className="participants-loading-container">
-          <Loader2 size={24} className="animate-spin text-primary" />
+        <div className="flex flex-col items-center justify-center gap-2.5 py-7 px-4 text-slate-500 dark:text-slate-400 text-sm text-center">
+          <Loader2 size={24} className="animate-spin text-blue-600 dark:text-blue-400" />
           <span>Caricamento membri in corso...</span>
         </div>
       );
@@ -212,8 +211,8 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
     if (filteredParticipants.length === 0) {
       return (
-        <div className="participants-empty-container">
-          <User size={32} className="text-muted" />
+        <div className="flex flex-col items-center justify-center gap-2.5 py-7 px-4 text-slate-400 dark:text-slate-500 text-sm text-center">
+          <User size={32} className="opacity-60" />
           <span>
             {searchQuery
               ? 'Nessun partecipante corrisponde alla ricerca.'
@@ -224,7 +223,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
     }
 
     return (
-      <ul className="participants-list" aria-label="Elenco Partecipanti">
+      <ul className="list-none p-0 m-0 flex flex-col gap-2 max-h-70 overflow-y-auto pr-1" aria-label="Elenco Partecipanti">
         {filteredParticipants.map((participant) => {
           const isProjectCreator =
             activeCreatorId !== undefined && participant.id === activeCreatorId;
@@ -235,20 +234,30 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
             : 'U';
 
           return (
-            <li key={participant.id} className="participant-item">
-              <div className="participant-avatar" aria-hidden="true">
+            <li
+              key={participant.id}
+              className="flex items-center gap-3 p-2.5 sm:px-3 sm:py-2.5 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 rounded-lg transition-all"
+            >
+              <div
+                className="w-8.5 h-8.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shrink-0 select-none border border-blue-200/60 dark:border-blue-900/50"
+                aria-hidden="true"
+              >
                 {initial}
               </div>
 
-              <div className="participant-info">
-                <div className="participant-name-row">
-                  <span className="participant-username">{participant.username}</span>
+              <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                    {participant.username}
+                  </span>
                   {isCurrentUser && (
-                    <span className="badge badge-code participant-me-badge">Tu</span>
+                    <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50">
+                      Tu
+                    </span>
                   )}
                   {isProjectCreator && (
                     <span
-                      className="badge participant-creator-badge"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800"
                       title="Creatore del Progetto"
                     >
                       <Crown size={12} />
@@ -256,14 +265,18 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
                     </span>
                   )}
                 </div>
-                <span className="participant-email">{participant.email}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  {participant.email}
+                </span>
               </div>
 
-              <div className="participant-role-wrapper">
+              <div className="flex items-center shrink-0">
                 <span
-                  className={`badge ${
-                    isUserAdmin ? 'badge-danger' : 'badge-info'
-                  } participant-role-badge`}
+                  className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded ${
+                    isUserAdmin
+                      ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50'
+                      : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50'
+                  }`}
                   title={`Ruolo di sistema: ${participant.type || 'USER'}`}
                 >
                   {isUserAdmin && <Shield size={11} />}
@@ -279,26 +292,32 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
   return (
     <dialog
-      className="modal-overlay"
+      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-slate-900/55 backdrop-blur-xs box-border animate-in fade-in duration-150"
       open
       aria-labelledby="participants-modal-title"
       aria-modal="true"
     >
-      <div ref={modalContainerRef} className="modal-container participants-modal-container">
+      <div
+        ref={modalContainerRef}
+        className="relative w-full max-w-145 max-h-[90vh] bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+      >
         {/* Intestazione Modale */}
-        <div className="modal-header">
-          <div className="modal-title-wrapper">
-            <h2 id="participants-modal-title" className="modal-title">
-              <Users size={20} className="text-primary" />
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 gap-3">
+          <div className="flex flex-col gap-1">
+            <h2 id="participants-modal-title" className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100 m-0">
+              <Users size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
               <span>Partecipanti al Progetto</span>
             </h2>
-            <div className="participants-project-info-row">
-              <span className="participants-project-name" title={activeProjectName}>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400" title={activeProjectName}>
                 {activeProjectName}
               </span>
               {isCreator && (
-                <span className="badge participant-creator-badge" title="Sei l'amministratore creatore di questo progetto">
-                  <Crown size={11} />
+                <span
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800"
+                  title="Sei l'amministratore creatore di questo progetto"
+                >
+                  <Crown size={12} />
                   <span>Sei il creatore</span>
                 </span>
               )}
@@ -306,7 +325,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
           </div>
           <button
             type="button"
-            className="modal-close-btn"
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
             onClick={onClose}
             disabled={isSubmitting}
             aria-label="Chiudi finestra"
@@ -316,36 +335,41 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
         </div>
 
         {/* Corpo Modale */}
-        <div className="modal-body participants-modal-body">
+        <div className="p-4.5 sm:p-5 overflow-y-auto flex-1 flex flex-col gap-3.5">
           {/* Banner Errore API */}
           {apiError && (
-            <div className="alert alert-error" role="alert">
-              <AlertCircle size={16} />
+            <div
+              className="flex items-start gap-2.5 p-3 rounded-lg text-[13px] leading-snug bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400"
+              role="alert"
+            >
+              <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
               <span>{apiError}</span>
             </div>
           )}
 
           {/* Banner Successo con semantic tag output */}
           {successMessage && (
-            <output className="alert alert-success">
-              <CheckCircle2 size={16} />
+            <output
+              className="flex items-start gap-2.5 p-3 rounded-lg text-[13px] leading-snug bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-400"
+            >
+              <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
               <span>{successMessage}</span>
             </output>
           )}
 
           {/* Sezione Aggiungi Partecipante (Abilitata per Amministratori) */}
           {isAdmin && (
-            <div className="add-participant-box">
-              <div className="add-participant-header">
-                <UserPlus size={16} className="text-primary" />
-                <span className="add-participant-title">Aggiungi Membro al Progetto</span>
+            <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3 sm:p-3.5 flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 dark:text-slate-100">
+                <UserPlus size={16} className="text-blue-600 dark:text-blue-400" />
+                <span>Aggiungi Membro al Progetto</span>
               </div>
 
               {availableUsersToAdd.length > 0 ? (
-                <form onSubmit={handleAddParticipant} className="add-participant-form">
-                  <div className="add-participant-input-group">
+                <form onSubmit={handleAddParticipant} className="w-full">
+                  <div className="flex gap-2 items-center">
                     <select
-                      className="form-select add-participant-select"
+                      className="flex-1 px-2.5 py-2 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                       value={selectedUserId}
                       onChange={(e) => setSelectedUserId(e.target.value)}
                       disabled={isSubmitting || isLoading}
@@ -361,7 +385,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
                     <button
                       type="submit"
-                      className="btn btn-primary add-participant-submit-btn"
+                      className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-[13px] font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-xs disabled:opacity-60 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-600/30"
                       disabled={isSubmitting || !selectedUserId || isLoading}
                     >
                       {isSubmitting ? (
@@ -379,7 +403,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
                   </div>
                 </form>
               ) : (
-                <p className="add-participant-empty-note">
+                <p className="text-[13px] text-slate-500 dark:text-slate-400 m-0">
                   Tutti gli utenti registrati nel sistema sono già partecipanti a questo progetto.
                 </p>
               )}
@@ -388,24 +412,26 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
           {/* Informazione per utenti non-admin */}
           {!isAdmin && (
-            <div className="participants-readonly-info">
+            <div className="text-[13px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2">
               <span>Solo gli amministratori possono associare nuovi partecipanti a questo progetto.</span>
             </div>
           )}
 
           {/* Intestazione Lista Partecipanti & Campo Ricerca */}
-          <div className="participants-list-header">
-            <div className="participants-count-tag">
+          <div className="flex justify-between items-center pb-1.5 border-b border-slate-200 dark:border-slate-800 gap-3">
+            <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-600 dark:text-slate-400">
               <span>Membri del team</span>
-              <span className="badge badge-info">{participants.length}</span>
+              <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50">
+                {participants.length}
+              </span>
             </div>
 
             {participants.length > 4 && (
-              <div className="participants-search-wrapper">
-                <Search size={14} className="participants-search-icon" />
+              <div className="relative flex items-center">
+                <Search size={14} className="absolute left-2 text-slate-400 pointer-events-none" />
                 <input
                   type="text"
-                  className="participants-search-input"
+                  className="pl-6.5 pr-2 py-1 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border border-slate-300 dark:border-slate-700 rounded-md w-40 focus:w-48 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-all"
                   placeholder="Cerca membro..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -420,10 +446,10 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
         </div>
 
         {/* Footer Modale */}
-        <div className="modal-footer">
+        <div className="flex items-center justify-end px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#111827]">
           <button
             type="button"
-            className="btn btn-secondary"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
             onClick={onClose}
             disabled={isSubmitting}
           >
