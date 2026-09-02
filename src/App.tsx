@@ -1,9 +1,8 @@
 import { AppRoutes } from './routes/AppRoutes';
-import './App.css';
 
 function App() {
   return (
-    <div className="app-root">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0b101b]">
       <AppRoutes />
     </div>
   );

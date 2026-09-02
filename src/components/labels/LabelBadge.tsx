@@ -1,7 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import type { LabelResponseDto } from '../../services/labelService';
-import './Labels.css';
 
 export type LabelBadgeSize = 'sm' | 'md' | 'lg';
 
@@ -21,6 +20,12 @@ const REMOVE_ICON_SIZES: Record<LabelBadgeSize, number> = {
   sm: 11,
   md: 12,
   lg: 14,
+};
+
+const SIZE_CLASSES: Record<LabelBadgeSize, { badge: string; dot: string }> = {
+  sm: { badge: 'text-[11px] px-1.5 py-0.5 rounded-[4px]', dot: 'w-1.25 h-1.25' },
+  md: { badge: 'text-xs px-2 py-0.75 rounded-md', dot: 'w-1.5 h-1.5' },
+  lg: { badge: 'text-[13px] px-2.5 py-1 rounded-lg', dot: 'w-1.75 h-1.75' },
 };
 
 /**
@@ -52,8 +57,13 @@ export const LabelBadge: React.FC<LabelBadgeProps> = ({
 
   const badgeContent = (
     <>
-      {showDot && <span className="label-badge-dot" style={{ backgroundColor: hex }} />}
-      <span className="label-badge-name">{displayName}</span>
+      {showDot && (
+        <span
+          className={`${SIZE_CLASSES[size].dot} rounded-full shrink-0`}
+          style={{ backgroundColor: hex }}
+        />
+      )}
+      <span className="max-w-40 truncate">{displayName}</span>
     </>
   );
 
@@ -61,7 +71,7 @@ export const LabelBadge: React.FC<LabelBadgeProps> = ({
     return (
       <button
         type="button"
-        className={`label-badge label-badge--${size} label-badge--clickable ${className}`.trim()}
+        className={`inline-flex items-center gap-1.25 font-sans font-medium leading-none whitespace-nowrap border select-none cursor-pointer transition-all hover:brightness-95 hover:-translate-y-px ${SIZE_CLASSES[size].badge} ${className}`.trim()}
         style={style}
         onClick={onClick}
         title={badgeTitle}
@@ -73,7 +83,7 @@ export const LabelBadge: React.FC<LabelBadgeProps> = ({
 
   return (
     <span
-      className={`label-badge label-badge--${size} ${className}`.trim()}
+      className={`inline-flex items-center gap-1.25 font-sans font-medium leading-none whitespace-nowrap border select-none ${SIZE_CLASSES[size].badge} ${className}`.trim()}
       style={style}
       title={badgeTitle}
     >
@@ -81,7 +91,7 @@ export const LabelBadge: React.FC<LabelBadgeProps> = ({
       {onRemove && (
         <button
           type="button"
-          className="label-badge-remove-btn"
+          className="inline-flex items-center justify-center bg-transparent border-none p-0 ml-0.5 text-current opacity-70 hover:opacity-100 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();

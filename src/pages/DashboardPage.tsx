@@ -24,9 +24,15 @@ import {
 } from '../components/issues/IssueFilterBar';
 import { IssueList } from '../components/issues/IssueList';
 import { CreateIssueModal } from '../components/issues/CreateIssueModal';
-import './DashboardPage.css';
 
 const ITEMS_PER_PAGE = 9;
+
+const KPI_ICON_STYLES: Record<string, string> = {
+  total: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
+  open: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400',
+  bugs: 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400',
+  closed: 'bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400',
+};
 
 /**
  * Calcola i numeri di pagina con finestra mobile ed ellissi per gestire qualsiasi numero di pagine.
@@ -202,49 +208,49 @@ export const DashboardPage: React.FC = () => {
   // Render caso: nessun progetto selezionato
   if (!selectedProject && !isProjectLoading) {
     return (
-      <div className="dashboard-page">
-        <div className="dashboard-no-project">
-          <FolderKanban size={32} className="dashboard-no-project-icon" />
-          <h3>Nessun progetto selezionato</h3>
-          <p>Seleziona o crea un progetto dalla barra laterale per visualizzare le sue issue.</p>
+      <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-12 box-border">
+        <div className="flex flex-col items-center justify-center p-14 bg-white dark:bg-[#151c2c] border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center gap-3 max-w-125 mx-auto my-8">
+          <FolderKanban size={36} className="text-blue-600 dark:text-blue-500" />
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 m-0">Nessun progetto selezionato</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 m-0">Seleziona o crea un progetto dalla barra laterale per visualizzare le sue issue.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-page">
+    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-12 box-border">
       {/* 1. Header Pagina & Azioni */}
-      <header className="dashboard-header">
-        <div className="dashboard-header-content">
+      <header className="flex justify-between items-start gap-4 flex-wrap">
+        <div className="flex flex-col gap-1">
           {selectedProject && (
-            <span className="dashboard-project-tag">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.75 rounded-full w-fit">
               <FolderKanban size={12} />
               <span>{selectedProject.name}</span>
             </span>
           )}
-          <h1 className="dashboard-title">Dashboard Issue</h1>
-          <p className="dashboard-subtitle">
+          <h1 className="text-2xl sm:text-[26px] font-bold text-slate-900 dark:text-slate-100 m-0">Dashboard Issue</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 m-0">
             Panoramica delle attività e segnalazioni del progetto.
           </p>
         </div>
 
-        <div className="dashboard-header-actions">
+        <div className="flex items-center gap-3">
           <button
             type="button"
-            className="dashboard-refresh-btn"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer shadow-xs transition-all disabled:opacity-50"
             onClick={() => selectedProject?.id && loadDashboardData(selectedProject.id)}
             disabled={isLoading}
             title="Sincronizza con il server"
           >
-            <RefreshCw size={15} className={isLoading ? 'icon-spin' : ''} />
+            <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
             <span>Aggiorna</span>
           </button>
 
           {isAuthenticated && selectedProject && (
             <button
               type="button"
-              className="dashboard-create-btn"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 border-none rounded-lg cursor-pointer shadow-xs transition-all"
               onClick={() => setIsCreateModalOpen(true)}
             >
               <Plus size={16} />
@@ -255,20 +261,24 @@ export const DashboardPage: React.FC = () => {
       </header>
 
       {/* 2. Bento KPI Cards */}
-      <section className="dashboard-kpi-grid" aria-label="Statistiche issue">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Statistiche issue">
         {kpiCards.map(({ label, value, icon: Icon, variant, active, onClick }) => (
           <button
             key={label}
             type="button"
-            className={`kpi-card ${active ? 'kpi-card--active' : ''}`}
+            className={`flex items-center gap-3.5 p-4 bg-white dark:bg-[#151c2c] border rounded-xl cursor-pointer text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm ${
+              active
+                ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-600/15'
+                : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+            }`}
             onClick={onClick}
           >
-            <div className={`kpi-icon kpi-icon--${variant}`}>
+            <div className={`flex items-center justify-center w-10 h-10 rounded-lg shrink-0 ${KPI_ICON_STYLES[variant]}`}>
               <Icon size={20} />
             </div>
-            <div className="kpi-info">
-              <span className="kpi-value">{value}</span>
-              <span className="kpi-label">{label}</span>
+            <div className="flex flex-col">
+              <span className="text-[22px] font-bold text-slate-900 dark:text-slate-100 leading-tight">{value}</span>
+              <span className="text-[13px] text-slate-500 dark:text-slate-400">{label}</span>
             </div>
           </button>
         ))}
@@ -287,14 +297,14 @@ export const DashboardPage: React.FC = () => {
 
       {/* 4. Banner di Errore */}
       {error && (
-        <div className="dashboard-error-banner" role="alert">
-          <div className="dashboard-error-content">
+        <div className="flex items-center justify-between gap-4 p-3 px-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-lg text-red-700 dark:text-red-300" role="alert">
+          <div className="flex items-center gap-2 text-sm font-medium">
             <AlertCircle size={18} />
             <span>{error}</span>
           </div>
           <button
             type="button"
-            className="btn btn-outline btn-sm"
+            className="px-3 py-1.5 text-xs font-medium border border-red-300 dark:border-red-800 rounded bg-white dark:bg-[#1e293b] text-red-700 dark:text-red-300 hover:bg-red-50 cursor-pointer"
             onClick={() => selectedProject?.id && loadDashboardData(selectedProject.id)}
           >
             Riprova
@@ -321,10 +331,10 @@ export const DashboardPage: React.FC = () => {
 
       {/* 6. Controlli di Paginazione Numerati con Finestra Mobile */}
       {totalPages > 1 && (
-        <nav className="dashboard-pagination" aria-label="Paginazione ticket">
+        <nav className="flex items-center justify-center gap-3 pt-5 mt-2 border-t border-slate-200 dark:border-slate-800 flex-wrap" aria-label="Paginazione ticket">
           <button
             type="button"
-            className="btn btn-outline btn-sm dashboard-page-btn"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
             disabled={currentPage <= 1}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             aria-label="Pagina precedente"
@@ -333,13 +343,17 @@ export const DashboardPage: React.FC = () => {
             <span>Precedente</span>
           </button>
 
-          <div className="dashboard-pagination-pages">
+          <div className="flex items-center gap-1.5">
             {getPageNumbers(currentPage, totalPages).map((item) =>
               typeof item === 'number' ? (
                 <button
                   key={item}
                   type="button"
-                  className={`dashboard-page-num ${item === currentPage ? 'dashboard-page-num--active' : ''}`}
+                  className={`inline-flex items-center justify-center min-w-8.5 h-8.5 px-2 text-sm rounded-lg cursor-pointer transition-all ${
+                    item === currentPage
+                      ? 'bg-blue-600 text-white font-semibold'
+                      : 'text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 font-medium'
+                  }`}
                   onClick={() => setCurrentPage(item)}
                   aria-label={`Pagina ${item}`}
                   aria-current={item === currentPage ? 'page' : undefined}
@@ -347,7 +361,7 @@ export const DashboardPage: React.FC = () => {
                   {item}
                 </button>
               ) : (
-                <span key={item} className="dashboard-page-ellipsis" aria-hidden="true">
+                <span key={item} className="inline-flex items-center justify-center min-w-6 text-slate-400 dark:text-slate-500 text-sm select-none" aria-hidden="true">
                   ...
                 </span>
               )
@@ -356,7 +370,7 @@ export const DashboardPage: React.FC = () => {
 
           <button
             type="button"
-            className="btn btn-outline btn-sm dashboard-page-btn"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
             disabled={currentPage >= totalPages}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             aria-label="Pagina successiva"

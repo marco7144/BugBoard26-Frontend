@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import { ApiError } from '../services/apiClient';
 import type { LoginCredentials } from '../types/auth';
-import './LoginPage.css';
 
 /**
  * Pagina di Login (/login).
@@ -70,21 +69,21 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="login-page-container">
+    <div className="min-h-screen w-full flex flex-col justify-start sm:justify-center items-center relative p-5 sm:p-8 bg-slate-50 dark:bg-[#0b101b] transition-colors">
       {/* Selettore Tema in alto a destra */}
-      <div className="login-page-topbar">
+      <div className="static sm:absolute sm:top-5 sm:right-6 mb-4 sm:mb-0 self-end flex items-center gap-3 z-10">
         <ThemeToggle />
       </div>
 
       {/* Area Contenuto & Form di Accesso */}
-      <main className="login-page-content">
+      <main className="w-full max-w-110 flex flex-col items-center gap-4 z-1">
         <LoginForm
           onSubmit={handleLogin}
           onClearError={() => setErrorMessage(null)}
           isLoading={isLoading}
           errorMessage={errorMessage}
         />
-        <footer className="login-page-footer">
+        <footer className="text-center text-xs text-slate-400 dark:text-slate-500 mt-2">
           BugBoard26 - Piattaforma di Issue Tracking
         </footer>
       </main>

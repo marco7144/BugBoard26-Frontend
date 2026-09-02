@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { labelService, type LabelResponseDto } from '../../services/labelService';
 import { LabelBadge } from './LabelBadge';
-import './Labels.css';
 
 /** 8 tonalità di colore predefinite e armoniose per la creazione rapida delle etichette */
 export const PRESET_LABEL_COLORS = [
@@ -167,6 +166,13 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
     ? placeholder
     : `${selectedCount} etichett${countSuffix} selezionat${countSuffix}`;
 
+  let triggerBorderClass = 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600';
+  if (isOpen) {
+    triggerBorderClass = 'border-blue-600 dark:border-blue-500 ring-3 ring-blue-600/15';
+  } else if (selectedLabelIds.length > 0) {
+    triggerBorderClass = 'border-slate-300 dark:border-slate-600';
+  }
+
   const renderLabelsList = () => {
     if (filteredLabels.length > 0) {
       return filteredLabels.map((lbl) => {
@@ -176,23 +182,27 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
           <button
             key={lbl.id}
             type="button"
-            className={`label-selector-item ${isSelected ? 'label-selector-item--selected' : ''}`}
+            className={`w-full flex items-center gap-2 px-2.5 py-1.75 bg-transparent border-none rounded-md cursor-pointer text-left font-sans transition-colors ${
+              isSelected
+                ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold'
+                : 'text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
             onClick={() => handleToggleLabel(lbl.id!)}
             aria-pressed={isSelected}
           >
             <span
-              className="label-selector-item-dot"
+              className="w-2 h-2 rounded-full shrink-0"
               style={{ backgroundColor: lbl.color || '#3b82f6' }}
             />
-            <span className="label-selector-item-name">{lbl.name}</span>
-            {isSelected && <Check size={14} className="label-selector-item-check" />}
+            <span className="flex-1 text-[13px] truncate">{lbl.name}</span>
+            {isSelected && <Check size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />}
           </button>
         );
       });
     }
 
     if (!allowCreate || !normalizedQuery) {
-      return <div className="label-selector-empty">Nessuna etichetta disponibile</div>;
+      return <div className="p-3 text-center text-xs text-slate-400 dark:text-slate-500">Nessuna etichetta disponibile</div>;
     }
 
     return null;
@@ -200,43 +210,55 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
 
   return (
     <div
-      className={`label-selector ${disabled ? 'label-selector--disabled' : ''} ${className}`.trim()}
+      className={`relative w-full flex flex-col gap-2 ${disabled ? 'opacity-60 pointer-events-none' : ''} ${className}`.trim()}
       ref={containerRef}
       id={id}
     >
       {/* Pulsante Trigger */}
       <button
         type="button"
-        className={`label-selector-trigger ${isOpen ? 'label-selector-trigger--open' : ''} ${
-          selectedLabelIds.length > 0 ? 'label-selector-trigger--active' : ''
-        }`}
+        className={`w-full flex items-center justify-between px-3 py-2 min-h-10 bg-white dark:bg-[#1e293b] border rounded-lg cursor-pointer text-left font-sans transition-all outline-none ${triggerBorderClass}`}
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
         disabled={disabled}
         aria-expanded={isOpen}
       >
-        <div className="label-selector-trigger-left">
-          <Tag size={15} className="label-selector-icon" aria-hidden="true" />
-          <span className={`label-selector-trigger-text ${selectedLabels.length === 0 ? 'label-selector-placeholder' : ''}`}>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <Tag
+            size={15}
+            className={`shrink-0 ${
+              selectedLabelIds.length > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'
+            }`}
+            aria-hidden="true"
+          />
+          <span
+            className={`text-[13px] font-medium truncate ${
+              selectedLabels.length === 0
+                ? 'text-slate-400 dark:text-slate-500 font-normal'
+                : 'text-slate-900 dark:text-slate-100'
+            }`}
+          >
             {summaryText}
           </span>
         </div>
         <ChevronDown
           size={15}
-          className={`label-selector-chevron ${isOpen ? 'label-selector-chevron--rotated' : ''}`}
+          className={`text-slate-400 dark:text-slate-500 ml-2 shrink-0 transition-transform duration-200 ${
+            isOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''
+          }`}
           aria-hidden="true"
         />
       </button>
 
       {/* Menu Dropdown */}
       {isOpen && (
-        <div className="label-selector-dropdown">
+        <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl z-50 flex flex-col overflow-hidden animate-in fade-in duration-100">
           {/* Barra Ricerca Live */}
-          <div className="label-selector-search-box">
-            <Search size={14} className="label-selector-search-icon" aria-hidden="true" />
+          <div className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
+            <Search size={14} className="text-slate-400 dark:text-slate-500 shrink-0" aria-hidden="true" />
             <input
               ref={searchInputRef}
               type="text"
-              className="label-selector-search-input"
+              className="flex-1 border-none bg-transparent text-[13px] text-slate-900 dark:text-slate-100 outline-none placeholder:text-slate-400"
               placeholder="Cerca o scrivi nuova etichetta..."
               value={searchQuery}
               onChange={(e) => {
@@ -248,7 +270,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
             {searchQuery && (
               <button
                 type="button"
-                className="label-selector-search-clear"
+                className="bg-transparent border-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer flex items-center p-0"
                 onClick={() => setSearchQuery('')}
                 aria-label="Cancella ricerca"
               >
@@ -258,32 +280,36 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
           </div>
 
           {/* Lista Etichette */}
-          <div className="label-selector-list">
+          <div className="max-h-45 overflow-y-auto p-1 flex flex-col gap-0.5">
             {renderLabelsList()}
           </div>
 
           {/* Creazione Rapida Inline */}
           {allowCreate && normalizedQuery.length > 0 && !exactMatchExists && (
-            <div className="label-selector-create-panel">
+            <div className="p-2.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex flex-col gap-2">
               {createError && (
-                <div className="label-selector-create-error" role="alert">
-                  <AlertCircle size={13} />
+                <div className="flex items-center gap-1 px-2 py-1 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded text-xs" role="alert">
+                  <AlertCircle size={13} className="shrink-0" />
                   <span>{createError}</span>
                 </div>
               )}
 
-              <div className="label-selector-create-header">
+              <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400 truncate">
                 <span>{filteredLabels.length === 0 ? 'Nessun risultato. ' : ''}Crea:</span>
-                <strong className="label-selector-create-name">&ldquo;{searchQuery.trim()}&rdquo;</strong>
+                <strong className="text-blue-600 dark:text-blue-400 font-semibold truncate">&ldquo;{searchQuery.trim()}&rdquo;</strong>
               </div>
 
               {/* Palette 8 Colori */}
-              <div className="label-selector-palette" title="Scegli un colore per l'etichetta">
+              <div className="flex items-center gap-1.5 flex-wrap" title="Scegli un colore per l'etichetta">
                 {PRESET_LABEL_COLORS.map((col) => (
                   <button
                     key={col}
                     type="button"
-                    className={`label-selector-color-btn ${selectedColor === col ? 'label-selector-color-btn--active' : ''}`}
+                    className={`w-4.5 h-4.5 rounded-full border-2 cursor-pointer transition-transform hover:scale-115 ${
+                      selectedColor === col
+                        ? 'border-slate-900 dark:border-slate-100 scale-115 ring-2 ring-white dark:ring-slate-900'
+                        : 'border-transparent'
+                    }`}
                     style={{ backgroundColor: col }}
                     onClick={() => setSelectedColor(col)}
                     aria-label={`Colore ${col}`}
@@ -293,7 +319,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
 
               <button
                 type="button"
-                className="label-selector-create-btn"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-md text-xs font-medium cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 onClick={handleCreateLabel}
                 disabled={isCreating}
               >
@@ -316,7 +342,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
 
       {/* Pillole Selezionate */}
       {selectedLabels.length > 0 && (
-        <div className="label-selector-pills-row">
+        <div className="flex flex-wrap gap-1.5 mt-0.5">
           {selectedLabels.map((lbl) => {
             if (lbl.id === undefined) return null;
             return (
