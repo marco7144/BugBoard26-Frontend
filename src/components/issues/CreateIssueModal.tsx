@@ -17,7 +17,6 @@ import {
 import { useProject } from '../../context/ProjectContext';
 import { TYPE_CONFIG, PRIORITY_CONFIG } from '../common/Badge';
 import { LabelSelector } from '../labels/LabelSelector';
-import './CreateIssueModal.css';
 
 export interface CreateIssueModalProps {
   /** Indica se la finestra modale è visibile */
@@ -30,8 +29,15 @@ export interface CreateIssueModalProps {
   onSuccess?: (createdIssue: IssueResponseDto) => void;
 }
 
+const PRIORITY_ACTIVE_STYLES: Record<IssuePriority, string> = {
+  HIGH: 'bg-red-50 dark:bg-red-950/40 border-red-500 text-red-700 dark:text-red-400 font-semibold',
+  MEDIUM: 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-700 dark:text-amber-400 font-semibold',
+  LOW: 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-700 dark:text-blue-400 font-semibold',
+};
+
 /**
- * Modale per la Creazione di una Nuova Issue (Step 17 - Requisito F2).*/
+ * Modale per la Creazione di una Nuova Issue (Step 17 - Requisito F2).
+ */
 export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
   isOpen,
   onClose,
@@ -168,21 +174,21 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
   return (
     <dialog
-      className="modal-overlay"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
       open
       aria-labelledby="create-issue-title"
       aria-modal="true"
     >
-      <div className="modal-container create-issue-modal">
+      <div className="relative bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-185 flex flex-col overflow-visible my-auto">
         {/* Header Modale */}
-        <div className="modal-header">
-          <h2 id="create-issue-title" className="modal-title">
-            <PlusCircle size={20} className="text-primary" />
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 rounded-t-2xl gap-3">
+          <h2 id="create-issue-title" className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100 m-0">
+            <PlusCircle size={20} className="text-blue-600 dark:text-blue-500" />
             <span>Nuova Issue</span>
           </h2>
           <button
             type="button"
-            className="modal-close-btn"
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
             onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi modale"
@@ -193,24 +199,28 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
         {/* Form di Creazione */}
         <form onSubmit={handleSubmit} noValidate>
-          <div className="modal-body create-issue-body">
+          <div className="flex flex-col gap-3.5 px-6 py-5 overflow-visible">
             {/* Banner Errore API */}
             {apiError && (
-              <div className="alert alert-error" role="alert">
-                <AlertCircle size={16} />
+              <div className="flex items-center gap-2.5 p-3 text-sm bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/50 rounded-lg" role="alert">
+                <AlertCircle size={16} className="shrink-0" />
                 <span>{apiError}</span>
               </div>
             )}
 
             {/* Titolo */}
-            <div className="form-group">
-              <label htmlFor="issue-title" className="form-label">
-                Titolo <span className="text-danger">*</span>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="issue-title" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Titolo <span className="text-red-500">*</span>
               </label>
               <input
                 id="issue-title"
                 type="text"
-                className={`form-input ${titleError ? 'form-input-error' : ''}`}
+                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#1e293b] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 ${
+                  titleError
+                    ? 'border-red-500 focus:border-red-500 ring-red-500/15'
+                    : 'border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500'
+                }`}
                 placeholder="es. Errore 500 durante il salvataggio"
                 value={title}
                 onChange={(e) => {
@@ -221,15 +231,15 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                 autoFocus
                 maxLength={120}
               />
-              {titleError && <span className="form-error">{titleError}</span>}
+              {titleError && <span className="text-xs text-red-500">{titleError}</span>}
             </div>
 
             {/* Griglia Tipo & Priorità */}
-            <div className="issue-selectors-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-[1.15fr_1fr] gap-4">
               {/* Tipo */}
-              <div className="form-group">
-                <span className="form-label">Tipo</span>
-                <div className="issue-chips-row issue-type-grid">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Tipo</span>
+                <div className="grid grid-cols-2 gap-1.5">
                   {Object.entries(TYPE_CONFIG).map(([key, config]) => {
                     const Icon = config.icon;
                     const isSelected = type === key;
@@ -237,7 +247,11 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                       <button
                         key={key}
                         type="button"
-                        className={`issue-chip-btn ${isSelected ? 'active' : ''}`}
+                        className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border transition-all cursor-pointer select-none whitespace-nowrap ${
+                          isSelected
+                            ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
+                            : 'bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
                         onClick={() => setType(key as IssueType)}
                         disabled={isSubmitting}
                       >
@@ -250,9 +264,9 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
               </div>
 
               {/* Priorità */}
-              <div className="form-group">
-                <span className="form-label">Priorità</span>
-                <div className="issue-chips-row issue-priority-grid">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Priorità</span>
+                <div className="grid grid-cols-3 gap-1.5">
                   {Object.entries(PRIORITY_CONFIG).map(([key, config]) => {
                     const Icon = config.icon;
                     const isSelected = priority === key;
@@ -260,7 +274,11 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                       <button
                         key={key}
                         type="button"
-                        className={`issue-chip-btn priority-${key.toLowerCase()} ${isSelected ? 'active' : ''}`}
+                        className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border transition-all cursor-pointer select-none whitespace-nowrap ${
+                          isSelected
+                            ? `${PRIORITY_ACTIVE_STYLES[key as IssuePriority]} shadow-xs`
+                            : 'bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
                         onClick={() => setPriority(key as IssuePriority)}
                         disabled={isSubmitting}
                       >
@@ -274,14 +292,18 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
             </div>
 
             {/* Descrizione */}
-            <div className="form-group">
-              <label htmlFor="issue-desc" className="form-label">
-                Descrizione <span className="text-danger">*</span>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="issue-desc" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Descrizione <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="issue-desc"
                 rows={3}
-                className={`form-input issue-description-input ${descError ? 'form-input-error' : ''}`}
+                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#1e293b] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 min-h-16 max-h-27.5 resize-y ${
+                  descError
+                    ? 'border-red-500 focus:border-red-500 ring-red-500/15'
+                    : 'border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500'
+                }`}
                 placeholder="Fornisci dettagli sul problema riscontrato o sulla funzionalità richiesta..."
                 value={description}
                 onChange={(e) => {
@@ -290,12 +312,12 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                 }}
                 disabled={isSubmitting}
               />
-              {descError && <span className="form-error">{descError}</span>}
+              {descError && <span className="text-xs text-red-500">{descError}</span>}
             </div>
 
             {/* Etichette / Labels (Selettore Multiplo Modulare) */}
-            <div className="form-group">
-              <span className="form-label">Etichette (opzionale)</span>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Etichette (opzionale)</span>
               <LabelSelector
                 selectedLabelIds={selectedLabelIds}
                 onChange={setSelectedLabelIds}
@@ -304,20 +326,22 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
             </div>
 
             {/* Allegato Immagine */}
-            <div className="form-group">
-              <span className="form-label">Allegato Immagine (opzionale)</span>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Allegato Immagine (opzionale)</span>
               {imageDataUrl ? (
-                <div className="issue-img-preview">
+                <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg">
                   <img
                     src={imageDataUrl}
                     alt="Anteprima allegato"
-                    className="issue-img-thumb"
+                    className="w-11 h-11 object-cover rounded-md border border-slate-200 dark:border-slate-700"
                   />
-                  <div className="issue-img-info">
-                    <span className="issue-img-name">{imageName || 'screenshot.png'}</span>
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-[13px] font-medium text-slate-900 dark:text-slate-100 truncate">
+                      {imageName || 'screenshot.png'}
+                    </span>
                     <button
                       type="button"
-                      className="issue-img-remove-btn"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 dark:hover:text-red-400 self-start cursor-pointer hover:underline"
                       onClick={handleRemoveImage}
                       disabled={isSubmitting}
                       title="Rimuovi allegato"
@@ -328,7 +352,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                   </div>
                 </div>
               ) : (
-                <label className="issue-file-drop">
+                <label className="flex items-center justify-center gap-2 p-2.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 text-[13px] cursor-pointer hover:border-blue-600 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp,image/gif"
@@ -344,10 +368,10 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
           </div>
 
           {/* Footer Azioni */}
-          <div className="modal-footer">
+          <div className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-2xl">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-xs transition-all disabled:opacity-50"
               onClick={handleClose}
               disabled={isSubmitting}
             >
@@ -355,7 +379,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-lg cursor-pointer shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting || !title.trim() || !description.trim()}
             >
               {isSubmitting ? (

@@ -24,7 +24,6 @@ import type {
 import type { UserResponseDto } from '../../services/projectService';
 import type { LabelResponseDto } from '../../services/labelService';
 import { STATUS_CONFIG, PRIORITY_CONFIG, TYPE_CONFIG } from '../common/Badge';
-import './IssueFilterBar.css';
 
 /**
  * Rappresenta lo stato completo dei filtri e dell'ordinamento delle issue.
@@ -156,34 +155,45 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
   const displayLabel = selectedOption && selectedOption.value !== '' ? selectedOption.label : label;
 
   return (
-    <div className="filter-dropdown-wrapper" ref={dropdownRef} title={title}>
+    <div className="relative inline-flex w-full lg:w-auto" ref={dropdownRef} title={title}>
       <button
         type="button"
-        className={`filter-dropdown-btn ${isActive ? 'filter-dropdown-btn-active' : ''} ${
-          isOpen ? 'filter-dropdown-btn-open' : ''
+        className={`w-full lg:w-auto inline-flex items-center justify-between lg:justify-start gap-1.75 px-3 py-2 text-[13px] rounded-lg cursor-pointer select-none whitespace-nowrap transition-all border outline-none ${
+          isActive
+            ? 'border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 font-semibold'
+            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] font-medium hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+        } ${
+          isOpen ? 'border-blue-600 dark:border-blue-500 ring-3 ring-blue-600/15 dark:ring-blue-500/25' : ''
         }`}
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <span className="filter-dropdown-icon">{icon}</span>
-        <span className="filter-dropdown-label">{displayLabel}</span>
+        <span className="inline-flex items-center justify-center text-inherit shrink-0">{icon}</span>
+        <span className="inline-block max-w-45 truncate text-left">{displayLabel}</span>
         <ChevronDown
           size={13}
-          className={`filter-dropdown-chevron ${isOpen ? 'filter-dropdown-chevron-rotated' : ''}`}
+          className={`text-slate-400 dark:text-slate-500 ml-0.5 shrink-0 transition-transform duration-150 ${
+            isOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''
+          }`}
         />
       </button>
 
       {isOpen && (
-        <div className="filter-dropdown-menu" role="listbox">
+        <div
+          className="absolute top-[calc(100%+5px)] left-0 w-full lg:w-auto min-w-42.5 max-w-xs max-h-55 overflow-y-auto bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg z-50 p-1 flex flex-col gap-0.5 animate-in fade-in duration-120"
+          role="listbox"
+        >
           {options.map((opt) => {
             const isSelected = opt.value === value;
             return (
               <button
                 key={opt.value}
                 type="button"
-                className={`filter-dropdown-item ${
-                  isSelected ? 'filter-dropdown-item-selected' : ''
+                className={`flex items-center gap-2 w-full px-2.5 py-1.75 text-[13px] rounded-md text-left cursor-pointer select-none transition-colors border-none bg-transparent ${
+                  isSelected
+                    ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold'
+                    : 'text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400'
                 }`}
                 onClick={() => {
                   onChange(opt.value);
@@ -194,13 +204,13 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
               >
                 {opt.colorDot && (
                   <span
-                    className="filter-chip-color-dot"
+                    className="w-2 h-2 rounded-full shrink-0 inline-block"
                     style={{ backgroundColor: opt.colorDot }}
                   />
                 )}
-                {opt.icon && <span className="filter-dropdown-item-icon">{opt.icon}</span>}
-                <span className="filter-dropdown-item-text">{opt.label}</span>
-                {isSelected && <Check size={13} className="filter-dropdown-check" />}
+                {opt.icon && <span className="inline-flex items-center justify-center shrink-0">{opt.icon}</span>}
+                <span className="flex-1 truncate">{opt.label}</span>
+                {isSelected && <Check size={13} className="ml-auto text-blue-600 dark:text-blue-400 shrink-0" />}
               </button>
             );
           })}
@@ -278,15 +288,15 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
   }));
 
   return (
-    <div className={`issue-filter-bar ${className}`}>
+    <div className={`flex flex-col gap-3 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 sm:px-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-blue-600/50 ${className}`}>
       {/* 1. Riga Superiore: Ricerca, Dropdown Filtri, Ordinamento & Reset */}
-      <div className="filter-bar-main">
+      <div className="flex flex-col lg:flex-row flex-wrap items-stretch lg:items-center gap-2.5 w-full">
         {/* Campo Ricerca Testuale */}
-        <div className="filter-search-wrapper">
-          <Search size={16} className="filter-search-icon" aria-hidden="true" />
+        <div className="relative flex-1 min-w-50 w-full lg:w-auto flex items-center">
+          <Search size={16} className="absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none" aria-hidden="true" />
           <input
             type="text"
-            className="filter-search-input"
+            className="w-full pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-lg placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:bg-white dark:focus:bg-[#151c2c] focus:ring-3 focus:ring-blue-600/15 dark:focus:ring-blue-500/25 transition-all"
             placeholder="Cerca per titolo, ID, testo..."
             value={filters.search ?? ''}
             onChange={(e) => updateField('search', e.target.value)}
@@ -295,7 +305,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
           {filters.search && (
             <button
               type="button"
-              className="filter-search-clear"
+              className="absolute right-2 flex items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all cursor-pointer"
               onClick={() => updateField('search', '')}
               title="Cancella ricerca"
               aria-label="Cancella testo di ricerca"
@@ -306,11 +316,11 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
         </div>
 
         {/* Gruppo Dropdown Filtri */}
-        <div className="filter-selects-group">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap items-center gap-2 w-full lg:w-auto">
           {/* Filtro Stato */}
           <FilterDropdown
             label="Stato: Tutti"
-            icon={<CircleDot size={14} className="text-muted" />}
+            icon={<CircleDot size={14} className="text-slate-400 dark:text-slate-500" />}
             value={filters.state ?? ''}
             options={stateOptions}
             onChange={(val) => updateField('state', val ? (val as IssueState) : undefined)}
@@ -321,7 +331,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
           {/* Filtro Tipo */}
           <FilterDropdown
             label="Tipo: Tutti"
-            icon={<Layers size={14} className="text-muted" />}
+            icon={<Layers size={14} className="text-slate-400 dark:text-slate-500" />}
             value={filters.type ?? ''}
             options={typeOptions}
             onChange={(val) => updateField('type', val ? (val as IssueType) : undefined)}
@@ -332,7 +342,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
           {/* Filtro Priorità */}
           <FilterDropdown
             label="Priorità: Tutte"
-            icon={<Flame size={14} className="text-muted" />}
+            icon={<Flame size={14} className="text-slate-400 dark:text-slate-500" />}
             value={filters.priority ?? ''}
             options={priorityOptions}
             onChange={(val) => updateField('priority', val ? (val as IssuePriority) : undefined)}
@@ -344,7 +354,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
           {participants.length > 0 && (
             <FilterDropdown
               label="Assegnatario: Tutti"
-              icon={<User size={14} className="text-muted" />}
+              icon={<User size={14} className="text-slate-400 dark:text-slate-500" />}
               value={filters.assignedToId !== undefined ? String(filters.assignedToId) : ''}
               options={assigneeOptions}
               onChange={(val) => updateField('assignedToId', val ? Number(val) : undefined)}
@@ -357,7 +367,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
           {labels.length > 0 && (
             <FilterDropdown
               label="Etichetta: Tutte"
-              icon={<Tag size={14} className="text-muted" />}
+              icon={<Tag size={14} className="text-slate-400 dark:text-slate-500" />}
               value={filters.labelId !== undefined ? String(filters.labelId) : ''}
               options={labelOptions}
               onChange={(val) => updateField('labelId', val ? Number(val) : undefined)}
@@ -368,22 +378,24 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
         </div>
 
         {/* Gruppo Ordinamento (Sort By + Sort Dir Toggle) */}
-        <div className="filter-sort-group">
-          <FilterDropdown
-            label={`Ordina: ${
-              SORT_FIELD_OPTIONS.find((o) => o.value === (filters.sortBy ?? 'creationDate'))?.label ||
-              'Data di creazione'
-            }`}
-            icon={<ArrowDownUp size={14} className="text-muted" />}
-            value={filters.sortBy ?? 'creationDate'}
-            options={sortOptions}
-            onChange={(val) => updateField('sortBy', val)}
-            title="Ordina per"
-          />
+        <div className="flex items-center gap-1.5 w-full lg:w-auto">
+          <div className="flex-1 lg:flex-initial">
+            <FilterDropdown
+              label={`Ordina: ${
+                SORT_FIELD_OPTIONS.find((o) => o.value === (filters.sortBy ?? 'creationDate'))?.label ||
+                'Data di creazione'
+              }`}
+              icon={<ArrowDownUp size={14} className="text-slate-400 dark:text-slate-500" />}
+              value={filters.sortBy ?? 'creationDate'}
+              options={sortOptions}
+              onChange={(val) => updateField('sortBy', val)}
+              title="Ordina per"
+            />
+          </div>
 
           <button
             type="button"
-            className="filter-sort-dir-btn"
+            className="inline-flex items-center justify-center gap-1 px-2.5 py-2 text-xs font-semibold font-mono text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer select-none transition-all"
             onClick={() =>
               updateField('sortDir', filters.sortDir === 'asc' ? 'desc' : 'asc')
             }
@@ -397,7 +409,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
             }`}
           >
             {filters.sortDir === 'asc' ? <ArrowUp size={15} /> : <ArrowDown size={15} />}
-            <span className="filter-sort-dir-label">
+            <span className="tracking-wider">
               {filters.sortDir === 'asc' ? 'ASC' : 'DESC'}
             </span>
           </button>
@@ -407,36 +419,40 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
         {isFiltered && (
           <button
             type="button"
-            className="filter-reset-btn"
+            className="w-full lg:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.75 text-[13px] font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 rounded-lg hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white hover:border-red-600 shadow-xs cursor-pointer select-none transition-all lg:ml-auto group"
             onClick={() => (onResetFilters ? onResetFilters() : onFilterChange(DEFAULT_ISSUE_FILTERS))}
             title="Ripristina filtri e ordinamento di default"
             aria-label="Resetta filtri"
           >
             <RotateCcw size={14} />
             <span>Reset</span>
-            {activeCount > 0 && <span className="filter-count-badge">{activeCount}</span>}
+            {activeCount > 0 && (
+              <span className="inline-flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[11px] font-bold bg-red-600 text-white rounded-full group-hover:bg-white group-hover:text-red-600 transition-colors">
+                {activeCount}
+              </span>
+            )}
           </button>
         )}
       </div>
 
       {/* 2. Riga Inferiore: Pillole Filtri Attivi & Conteggio Risultati */}
       {(isFiltered || totalCount !== undefined) && (
-        <div className="filter-bar-chips-row">
+        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-2.5 pt-2.5 border-t border-dashed border-slate-200 dark:border-slate-800">
           {/* Chip dei filtri applicati */}
-          <div className="filter-chips-list">
-            <span className="filter-chips-caption">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1">
               <SlidersHorizontal size={13} />
               <span>Filtri attivi:</span>
             </span>
 
             {/* Chip Ricerca Testo */}
             {filters.search && filters.search.trim().length > 0 && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full animate-in fade-in duration-150">
                 <Search size={12} />
                 <span>Testo: &ldquo;{filters.search}&rdquo;</span>
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors ml-0.5 cursor-pointer"
                   onClick={() => updateField('search', '')}
                   aria-label="Rimuovi filtro testo"
                 >
@@ -447,12 +463,12 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Stato */}
             {filters.state && (
-              <span className="filter-chip filter-chip-state">
-                <CircleDot size={12} />
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-teal-500/30 rounded-full animate-in fade-in duration-150">
+                <CircleDot size={12} className="text-teal-600 dark:text-teal-400" />
                 <span>Stato: {STATUS_CONFIG[filters.state]?.label || filters.state}</span>
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors ml-0.5 cursor-pointer"
                   onClick={() => updateField('state', undefined)}
                   aria-label="Rimuovi filtro stato"
                 >
@@ -463,12 +479,12 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Tipo */}
             {filters.type && (
-              <span className="filter-chip filter-chip-type">
-                <Layers size={12} />
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-indigo-500/30 rounded-full animate-in fade-in duration-150">
+                <Layers size={12} className="text-indigo-600 dark:text-indigo-400" />
                 <span>Tipo: {TYPE_CONFIG[filters.type]?.label || filters.type}</span>
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors ml-0.5 cursor-pointer"
                   onClick={() => updateField('type', undefined)}
                   aria-label="Rimuovi filtro tipo"
                 >
@@ -479,12 +495,12 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Priorità */}
             {filters.priority && (
-              <span className="filter-chip filter-chip-priority">
-                <Flame size={12} />
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-orange-500/30 rounded-full animate-in fade-in duration-150">
+                <Flame size={12} className="text-orange-600 dark:text-orange-400" />
                 <span>Priorità: {PRIORITY_CONFIG[filters.priority]?.label || filters.priority}</span>
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors ml-0.5 cursor-pointer"
                   onClick={() => updateField('priority', undefined)}
                   aria-label="Rimuovi filtro priorità"
                 >
@@ -495,12 +511,12 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Assegnatario */}
             {filters.assignedToId !== undefined && selectedAssignee && (
-              <span className="filter-chip filter-chip-user">
-                <User size={12} />
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-blue-500/30 rounded-full animate-in fade-in duration-150">
+                <User size={12} className="text-blue-600 dark:text-blue-400" />
                 <span>Assegnato a: {selectedAssignee.username}</span>
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors ml-0.5 cursor-pointer"
                   onClick={() => updateField('assignedToId', undefined)}
                   aria-label="Rimuovi filtro assegnatario"
                 >
@@ -511,18 +527,18 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Label */}
             {filters.labelId !== undefined && selectedLabel && (
-              <span className="filter-chip filter-chip-label">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700 rounded-full animate-in fade-in duration-150">
                 <Tag size={12} />
                 {selectedLabel.color && (
                   <span
-                    className="filter-chip-color-dot"
+                    className="w-2 h-2 rounded-full shrink-0 inline-block"
                     style={{ backgroundColor: selectedLabel.color }}
                   />
                 )}
                 <span>Label: {selectedLabel.name}</span>
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors ml-0.5 cursor-pointer"
                   onClick={() => updateField('labelId', undefined)}
                   aria-label="Rimuovi filtro etichetta"
                 >
@@ -532,20 +548,21 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
             )}
 
             {activeCount === 0 && !filters.search && (
-              <span className="filter-chips-empty">Nessun filtro attivo (visualizzazione completa)</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 italic">Nessun filtro attivo (visualizzazione completa)</span>
             )}
           </div>
 
           {/* Conteggio Risultati */}
           {(filteredCount !== undefined || totalCount !== undefined) && (
-            <div className="filter-results-count">
+            <div className="text-[13px] text-slate-600 dark:text-slate-400 whitespace-nowrap">
               {filteredCount !== undefined && totalCount !== undefined && filteredCount !== totalCount ? (
                 <span>
-                  Mostrando <strong>{filteredCount}</strong> di <strong>{totalCount}</strong> issue
+                  Mostrando <strong className="text-slate-900 dark:text-slate-100 font-semibold">{filteredCount}</strong> di{' '}
+                  <strong className="text-slate-900 dark:text-slate-100 font-semibold">{totalCount}</strong> issue
                 </span>
               ) : (
                 <span>
-                  <strong>{filteredCount ?? totalCount}</strong>{' '}
+                  <strong className="text-slate-900 dark:text-slate-100 font-semibold">{filteredCount ?? totalCount}</strong>{' '}
                   {(filteredCount ?? totalCount) === 1 ? 'issue trovata' : 'issue trovate'}
                 </span>
               )}

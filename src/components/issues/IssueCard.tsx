@@ -1,10 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Image as ImageIcon, UserX } from 'lucide-react';
-import type { IssueResponseDto } from '../../services/issueService';
+import type { IssueResponseDto, IssueType } from '../../services/issueService';
 import { StatusBadge, PriorityBadge, TypeBadge } from '../common/Badge';
 import { LabelBadge } from '../labels/LabelBadge';
-import './IssueList.css';
 
 export interface IssueCardProps {
   /** I dati completi del ticket restituito dal backend */
@@ -16,6 +15,13 @@ export interface IssueCardProps {
   /** Classe CSS aggiuntiva per il contenitore */
   className?: string;
 }
+
+const TYPE_BORDER_MAP: Record<IssueType, string> = {
+  BUG: 'border-l-red-500',
+  FEATURE: 'border-l-orange-500',
+  QUESTION: 'border-l-indigo-500',
+  DOCUMENTATION: 'border-l-teal-500',
+};
 
 /**
  * Estrae l'iniziale maiuscola da un nome utente (es. 'M' per Marco, 'U' di fallback).
@@ -65,10 +71,6 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     }
   };
 
-  // Costruisce la classe per il bordo sinistro colorato
-  const typeClass = issue.type ? `issue-card--type-${issue.type.toLowerCase()}` : '';
-  const stateClass = issue.state ? `issue-card--state-${issue.state.toLowerCase()}` : '';
-
   const hasLabels = Boolean(issue.labels && issue.labels.length > 0);
   const hasImage = Boolean(issue.image && issue.image.trim().length > 0);
 
@@ -76,27 +78,42 @@ export const IssueCard: React.FC<IssueCardProps> = ({
     <button
       type="button"
       onClick={handleClick}
-      className={`issue-card ${typeClass} ${stateClass} ${className}`.trim()}
+      /* Bordo sinistro colorato (Accento tipologia/stato): teal se chiuso, altrimenti colore associato al tipo o blu standard */
+      className={`group relative w-full text-left font-inherit color-inherit bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 border-l-4 ${
+        issue.state === 'CLOSED'
+          ? 'border-l-teal-500'
+          : (issue.type && TYPE_BORDER_MAP[issue.type]) || 'border-l-blue-600'
+      } rounded-xl p-5 flex flex-col gap-3.5 min-h-50 h-full cursor-pointer select-none shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:outline-offset-2 active:translate-y-0 active:shadow-xs ${className}`.trim()}
       aria-label={`Issue #${issue.id || '?'}: ${issue.title || 'Senza titolo'}`}
     >
       {/* Testata della Card: Badges di Stato/Tipo/Priorità & ID Ticket */}
-      <div className="issue-card-header">
-        <div className="issue-card-badges">
+      <div className="flex items-center justify-between gap-2 w-full">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <TypeBadge type={issue.type} size="sm" />
           <PriorityBadge priority={issue.priority} size="sm" />
           <StatusBadge status={issue.state} size="sm" />
         </div>
-        <span className="issue-card-id" title={`ID Ticket: #${issue.id}`}>
+        <span
+          className="font-mono text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-tight whitespace-nowrap bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-sm border border-slate-200 dark:border-slate-700"
+          title={`ID Ticket: #${issue.id}`}
+        >
           #ISS-{issue.id ?? '---'}
         </span>
       </div>
 
       {/* Corpo della Card: Titolo & Descrizione */}
-      <div className="issue-card-body">
-        <h3 className="issue-card-title" title={issue.title}>
+      <div className="flex flex-col gap-1.5 flex-1 w-full">
+        <h3
+          className={`text-[15px] font-semibold leading-snug line-clamp-2 transition-colors ${
+            issue.state === 'CLOSED'
+              ? 'text-slate-500 dark:text-slate-400 group-hover:text-teal-600'
+              : 'text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+          }`}
+          title={issue.title}
+        >
           {issue.title || 'Senza titolo'}
         </h3>
-        <p className="issue-card-description">
+        <p className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-400 line-clamp-2">
           {issue.description && issue.description.trim().length > 0
             ? issue.description
             : 'Nessuna descrizione fornita per questo ticket.'}
@@ -105,7 +122,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
 
       {/* Sezione Tag / Etichette e Allegato */}
       {(hasLabels || hasImage) && (
-        <div className="issue-card-tags">
+        <div className="flex items-center gap-1.5 flex-wrap mt-auto pt-1">
           {hasLabels &&
             issue.labels?.map((label) => (
               <LabelBadge
@@ -116,7 +133,10 @@ export const IssueCard: React.FC<IssueCardProps> = ({
             ))}
 
           {hasImage && (
-            <span className="issue-card-attachment" title="Questa issue include un'immagine allegata">
+            <span
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.75 py-0.75 rounded-sm"
+              title="Questa issue include un'immagine allegata"
+            >
               <ImageIcon size={12} aria-hidden="true" />
               <span>Allegato</span>
             </span>
@@ -125,21 +145,24 @@ export const IssueCard: React.FC<IssueCardProps> = ({
       )}
 
       {/* Footer della Card: Assegnatario, Autore e Data */}
-      <div className="issue-card-footer">
-        <div className="issue-card-users">
+      <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/80 mt-1 w-full">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
           {issue.assignedToUsername ? (
             <div
-              className="issue-card-user"
+              className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap overflow-hidden text-ellipsis"
               title={`Assegnato a: ${issue.assignedToUsername}`}
             >
-              <div className="issue-card-avatar issue-card-avatar--assignee" aria-hidden="true">
+              <div
+                className="w-5.5 h-5.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[10px] font-bold flex items-center justify-center shrink-0 border border-blue-200 dark:border-blue-800/50"
+                aria-hidden="true"
+              >
                 {getUserInitial(issue.assignedToUsername)}
               </div>
-              <span>{issue.assignedToUsername}</span>
+              <span className="truncate">{issue.assignedToUsername}</span>
             </div>
           ) : (
             <div
-              className="issue-card-user issue-card-user--unassigned"
+              className="text-xs text-slate-400 dark:text-slate-500 italic inline-flex items-center gap-1"
               title="Nessun partecipante assegnato a questa issue"
             >
               <UserX size={13} aria-hidden="true" />
@@ -148,7 +171,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
           )}
         </div>
 
-        <div className="issue-card-date">
+        <div className="inline-flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0">
           <Clock size={12} aria-hidden="true" />
           <span>{formatDate(issue.creationDate)}</span>
         </div>
