@@ -29,6 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Applica l'attributo data-theme all'elemento <html> per cambiare le variabili CSS
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
