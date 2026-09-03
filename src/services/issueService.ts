@@ -61,6 +61,18 @@ export const issueService = {
   },
 
   /**
+   * Recupera una singola issue dato l'ID del progetto e l'ID della issue.
+   *
+   * @param projectId - ID del progetto
+   * @param issueId - ID della issue
+   * @returns Issue corrispondente o undefined se non trovata
+   */
+  async getIssueById(projectId: number, issueId: number): Promise<IssueResponseDto | undefined> {
+    const issues = await this.getIssues(projectId);
+    return issues.find((issue) => issue.id === issueId);
+  },
+
+  /**
    * Crea una nuova issue all'interno di un progetto.
    * Endpoint protetto (`POST /api/projects/{projectId}/issues/createissue`).
    *
