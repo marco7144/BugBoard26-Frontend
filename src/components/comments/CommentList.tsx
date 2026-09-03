@@ -96,7 +96,7 @@ export const CommentList: React.FC<CommentListProps> = ({
               >
                 {initial}
               </div>
-              <div className="flex-1 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-lg p-3 sm:p-3.5 shadow-xs min-w-0">
+              <div className="flex-1 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-lg p-3 sm:p-3.5 shadow-xs min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                     {comment.creatorUsername ?? 'Utente sconosciuto'}

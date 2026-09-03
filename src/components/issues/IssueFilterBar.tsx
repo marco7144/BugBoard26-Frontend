@@ -161,7 +161,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
         className={`w-full lg:w-auto inline-flex items-center justify-between lg:justify-start gap-1.75 px-3 py-2 text-[13px] rounded-lg cursor-pointer select-none whitespace-nowrap transition-all border outline-none ${
           isActive
             ? 'border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 font-semibold'
-            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] font-medium hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 bg-white dark:bg-[#21262d] font-medium hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
         } ${
           isOpen ? 'border-blue-600 dark:border-blue-500 ring-3 ring-blue-600/15 dark:ring-blue-500/25' : ''
         }`}
@@ -181,7 +181,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
 
       {isOpen && (
         <div
-          className="absolute top-[calc(100%+5px)] left-0 w-full lg:w-auto min-w-42.5 max-w-xs max-h-55 overflow-y-auto bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg z-50 p-1 flex flex-col gap-0.5 animate-in fade-in duration-120"
+          className="absolute top-[calc(100%+5px)] left-0 w-full lg:w-auto min-w-42.5 max-w-xs max-h-55 overflow-y-auto bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg z-50 p-1 flex flex-col gap-0.5 animate-in fade-in duration-120"
           role="listbox"
         >
           {options.map((opt) => {
@@ -288,7 +288,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
   }));
 
   return (
-    <div className={`flex flex-col gap-3 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 sm:px-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-blue-600/50 ${className}`}>
+    <div className={`flex flex-col gap-3 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 sm:px-4.5 shadow-xs transition-all hover:border-slate-300 dark:hover:border-blue-600/50 ${className}`}>
       {/* 1. Riga Superiore: Ricerca, Dropdown Filtri, Ordinamento & Reset */}
       <div className="flex flex-col lg:flex-row flex-wrap items-stretch lg:items-center gap-2.5 w-full">
         {/* Campo Ricerca Testuale */}
@@ -296,7 +296,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
           <Search size={16} className="absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none" aria-hidden="true" />
           <input
             type="text"
-            className="w-full pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-lg placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:bg-white dark:focus:bg-[#151c2c] focus:ring-3 focus:ring-blue-600/15 dark:focus:ring-blue-500/25 transition-all"
+            className="w-full pl-9 pr-8 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-lg placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:bg-white dark:focus:bg-[#161b22] focus:ring-3 focus:ring-blue-600/15 dark:focus:ring-blue-500/25 transition-all"
             placeholder="Cerca per titolo, ID, testo..."
             value={filters.search ?? ''}
             onChange={(e) => updateField('search', e.target.value)}
@@ -395,7 +395,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
           <button
             type="button"
-            className="inline-flex items-center justify-center gap-1 px-2.5 py-2 text-xs font-semibold font-mono text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer select-none transition-all"
+            className="inline-flex items-center justify-center gap-1 px-2.5 py-2 text-xs font-semibold font-mono text-slate-600 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 rounded-lg hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer select-none transition-all"
             onClick={() =>
               updateField('sortDir', filters.sortDir === 'asc' ? 'desc' : 'asc')
             }
@@ -463,7 +463,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Stato */}
             {filters.state && (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-teal-500/30 rounded-full animate-in fade-in duration-150">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-teal-500/30 rounded-full animate-in fade-in duration-150">
                 <CircleDot size={12} className="text-teal-600 dark:text-teal-400" />
                 <span>Stato: {STATUS_CONFIG[filters.state]?.label || filters.state}</span>
                 <button
@@ -479,7 +479,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Tipo */}
             {filters.type && (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-indigo-500/30 rounded-full animate-in fade-in duration-150">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-indigo-500/30 rounded-full animate-in fade-in duration-150">
                 <Layers size={12} className="text-indigo-600 dark:text-indigo-400" />
                 <span>Tipo: {TYPE_CONFIG[filters.type]?.label || filters.type}</span>
                 <button
@@ -495,7 +495,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Priorità */}
             {filters.priority && (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-orange-500/30 rounded-full animate-in fade-in duration-150">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-orange-500/30 rounded-full animate-in fade-in duration-150">
                 <Flame size={12} className="text-orange-600 dark:text-orange-400" />
                 <span>Priorità: {PRIORITY_CONFIG[filters.priority]?.label || filters.priority}</span>
                 <button
@@ -511,7 +511,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Assegnatario */}
             {filters.assignedToId !== undefined && selectedAssignee && (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-blue-500/30 rounded-full animate-in fade-in duration-150">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-blue-500/30 rounded-full animate-in fade-in duration-150">
                 <User size={12} className="text-blue-600 dark:text-blue-400" />
                 <span>Assegnato a: {selectedAssignee.username}</span>
                 <button
@@ -527,7 +527,7 @@ export const IssueFilterBar: React.FC<IssueFilterBarProps> = ({
 
             {/* Chip Label */}
             {filters.labelId !== undefined && selectedLabel && (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700 rounded-full animate-in fade-in duration-150">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-slate-800 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-300 dark:border-slate-700 rounded-full animate-in fade-in duration-150">
                 <Tag size={12} />
                 {selectedLabel.color && (
                   <span

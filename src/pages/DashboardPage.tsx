@@ -209,7 +209,7 @@ export const DashboardPage: React.FC = () => {
   if (!selectedProject && !isProjectLoading) {
     return (
       <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-12 box-border">
-        <div className="flex flex-col items-center justify-center p-14 bg-white dark:bg-[#151c2c] border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center gap-3 max-w-125 mx-auto my-8">
+        <div className="flex flex-col items-center justify-center p-14 bg-white dark:bg-[#161b22] border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center gap-3 max-w-125 mx-auto my-8">
           <FolderKanban size={36} className="text-blue-600 dark:text-blue-500" />
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 m-0">Nessun progetto selezionato</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 m-0">Seleziona o crea un progetto dalla barra laterale per visualizzare le sue issue.</p>
@@ -238,7 +238,7 @@ export const DashboardPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer shadow-xs transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer shadow-xs transition-all disabled:opacity-50"
             onClick={() => selectedProject?.id && loadDashboardData(selectedProject.id)}
             disabled={isLoading}
             title="Sincronizza con il server"
@@ -250,7 +250,7 @@ export const DashboardPage: React.FC = () => {
           {isAuthenticated && selectedProject && (
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 border-none rounded-lg cursor-pointer shadow-xs transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 border border-emerald-800 dark:border-emerald-400 rounded-lg cursor-pointer shadow-xs transition-all"
               onClick={() => setIsCreateModalOpen(true)}
             >
               <Plus size={16} />
@@ -266,7 +266,7 @@ export const DashboardPage: React.FC = () => {
           <button
             key={label}
             type="button"
-            className={`flex items-center gap-3.5 p-4 bg-white dark:bg-[#151c2c] border rounded-xl cursor-pointer text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm ${
+            className={`flex items-center gap-3.5 p-4 bg-white dark:bg-[#161b22] border rounded-xl cursor-pointer text-left transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm ${
               active
                 ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-600/15'
                 : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
@@ -304,7 +304,7 @@ export const DashboardPage: React.FC = () => {
           </div>
           <button
             type="button"
-            className="px-3 py-1.5 text-xs font-medium border border-red-300 dark:border-red-800 rounded bg-white dark:bg-[#1e293b] text-red-700 dark:text-red-300 hover:bg-red-50 cursor-pointer"
+            className="px-3 py-1.5 text-xs font-medium border border-red-300 dark:border-red-800 rounded bg-white dark:bg-[#21262d] text-red-700 dark:text-red-300 hover:bg-red-50 cursor-pointer"
             onClick={() => selectedProject?.id && loadDashboardData(selectedProject.id)}
           >
             Riprova
@@ -334,7 +334,7 @@ export const DashboardPage: React.FC = () => {
         <nav className="flex items-center justify-center gap-3 pt-5 mt-2 border-t border-slate-200 dark:border-slate-800 flex-wrap" aria-label="Paginazione ticket">
           <button
             type="button"
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
             disabled={currentPage <= 1}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             aria-label="Pagina precedente"
@@ -352,7 +352,7 @@ export const DashboardPage: React.FC = () => {
                   className={`inline-flex items-center justify-center min-w-8.5 h-8.5 px-2 text-sm rounded-lg cursor-pointer transition-all ${
                     item === currentPage
                       ? 'bg-blue-600 text-white font-semibold'
-                      : 'text-slate-600 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 font-medium'
+                      : 'text-slate-600 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 font-medium'
                   }`}
                   onClick={() => setCurrentPage(item)}
                   aria-label={`Pagina ${item}`}
@@ -370,7 +370,7 @@ export const DashboardPage: React.FC = () => {
 
           <button
             type="button"
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
             disabled={currentPage >= totalPages}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             aria-label="Pagina successiva"

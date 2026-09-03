@@ -217,7 +217,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
       {/* Pulsante Trigger */}
       <button
         type="button"
-        className={`w-full flex items-center justify-between px-3 py-2 min-h-10 bg-white dark:bg-[#1e293b] border rounded-lg cursor-pointer text-left font-sans transition-all outline-none ${triggerBorderClass}`}
+        className={`w-full flex items-center justify-between px-3 py-2 min-h-10 bg-white dark:bg-[#21262d] border rounded-lg cursor-pointer text-left font-sans transition-all outline-none ${triggerBorderClass}`}
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
         disabled={disabled}
         aria-expanded={isOpen}
@@ -251,7 +251,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
 
       {/* Menu Dropdown */}
       {isOpen && (
-        <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl z-50 flex flex-col overflow-hidden animate-in fade-in duration-100">
+        <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl z-50 flex flex-col overflow-hidden animate-in fade-in duration-100">
           {/* Barra Ricerca Live */}
           <div className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
             <Search size={14} className="text-slate-400 dark:text-slate-500 shrink-0" aria-hidden="true" />

@@ -79,7 +79,7 @@ export const IssueCard: React.FC<IssueCardProps> = ({
       type="button"
       onClick={handleClick}
       /* Bordo sinistro colorato (Accento tipologia/stato): teal se chiuso, altrimenti colore associato al tipo o blu standard */
-      className={`group relative w-full text-left font-inherit color-inherit bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 border-l-4 ${
+      className={`group relative w-full text-left font-inherit color-inherit bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 border-l-4 ${
         issue.state === 'CLOSED'
           ? 'border-l-teal-500'
           : (issue.type && TYPE_BORDER_MAP[issue.type]) || 'border-l-blue-600'

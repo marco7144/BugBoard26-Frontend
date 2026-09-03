@@ -27,7 +27,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      <aside className="w-17 md:w-62.5 h-screen sticky top-0 bg-white dark:bg-[#151c2c] border-r border-slate-200 dark:border-slate-800 flex flex-col py-3.5 px-2 md:py-5 md:px-3.5 gap-4 shrink-0 transition-colors">
+      <aside className="w-17 md:w-62.5 h-screen sticky top-0 bg-white dark:bg-[#161b22] border-r border-slate-200 dark:border-slate-800 flex flex-col py-3.5 px-2 md:py-5 md:px-3.5 gap-4 shrink-0 transition-colors">
         {/* 1. Branding */}
         <Link
           to="/"
@@ -41,13 +41,13 @@ export const Sidebar: React.FC = () => {
         </Link>
 
         {/* 2. Selettore Progetto Attivo & Azioni */}
-        <div className="bg-slate-100/70 dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 md:p-[10px_12px] flex flex-col gap-2">
+        <div className="bg-slate-100/70 dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 md:p-[10px_12px] flex flex-col gap-2">
           <div className="flex items-center justify-center md:justify-start gap-1.5 text-[0.72rem] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             <FolderKanban size={14} className="shrink-0" />
             <span className="hidden md:inline">Progetto Attivo</span>
           </div>
           <select
-            className="hidden md:block w-full px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-900 dark:text-slate-100 font-semibold text-sm outline-none cursor-pointer focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
+            className="hidden md:block w-full px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#21262d] text-slate-900 dark:text-slate-100 font-semibold text-sm outline-none cursor-pointer focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
             value={selectedProject?.id ?? ''}
             onChange={handleProjectChange}
             aria-label="Seleziona Progetto Attivo"
@@ -70,7 +70,7 @@ export const Sidebar: React.FC = () => {
             {selectedProject && (
               <button
                 type="button"
-                className="w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 text-[13px] font-semibold rounded-md border border-solid border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:border-blue-600 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer select-none whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 text-[13px] font-semibold rounded-md border border-solid border-slate-300 dark:border-slate-700 bg-white dark:bg-[#21262d] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:border-blue-600 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer select-none whitespace-nowrap"
                 onClick={() => setIsParticipantsModalOpen(true)}
                 title="Visualizza e gestisci i partecipanti del progetto"
               >
@@ -82,7 +82,7 @@ export const Sidebar: React.FC = () => {
             {isAdmin && (
               <button
                 type="button"
-                className="w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 text-[13px] font-semibold rounded-md border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:border-blue-600 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer select-none whitespace-nowrap"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 text-[13px] font-semibold rounded-md border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#21262d] text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:border-blue-600 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer select-none whitespace-nowrap"
                 onClick={() => setIsCreateModalOpen(true)}
                 title="Crea un nuovo progetto"
               >

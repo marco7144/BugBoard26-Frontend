@@ -190,7 +190,7 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
               <div key={lbl.id} className="flex items-center gap-2 p-2 px-3 bg-slate-50 dark:bg-slate-800/60 border border-blue-500 dark:border-blue-500 rounded-lg">
                 <input
                   type="text"
-                  className="flex-1 min-w-25 px-2 py-1 text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-600 rounded outline-none focus:border-blue-600"
+                  className="flex-1 min-w-25 px-2 py-1 text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-[#21262d] border border-slate-300 dark:border-slate-600 rounded outline-none focus:border-blue-600"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   disabled={isSavingEdit}
@@ -276,12 +276,12 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
 
   return (
     <dialog
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
+      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
       open
       aria-labelledby="label-manager-title"
       aria-modal="true"
     >
-      <div className="relative bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-130 flex flex-col my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-130 flex flex-col my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header Modale */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 rounded-t-2xl gap-3">
           <h2 id="label-manager-title" className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100 m-0">
@@ -313,7 +313,7 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
             <form onSubmit={handleCreate} className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
               <input
                 type="text"
-                className="flex-1 min-w-35 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-3 focus:ring-blue-600/15 transition-all placeholder:text-slate-400"
+                className="flex-1 min-w-35 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-3 focus:ring-blue-600/15 transition-all placeholder:text-slate-400"
                 placeholder="es. Frontend, Bug, Urgente..."
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
@@ -384,7 +384,7 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
         <div className="flex items-center justify-end px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-2xl">
           <button
             type="button"
-            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-xs transition-all"
+            className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-xs transition-all"
             onClick={onClose}
           >
             Chiudi

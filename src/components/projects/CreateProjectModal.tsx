@@ -161,7 +161,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     >
       <div
         ref={modalContainerRef}
-        className="relative w-full max-w-130 max-h-[90vh] bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-130 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
       >
         {/* Intestazione Modale */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 gap-3">
@@ -203,7 +203,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 ref={nameInputRef}
                 id="project-name"
                 type="text"
-                className={`w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
+                className={`w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
                   nameError
                     ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
                     : 'border-slate-300 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-blue-600/20'
@@ -237,7 +237,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                       className={`flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-lg border-2 transition-all cursor-pointer select-none font-sans ${
                         isSelected
                           ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/50 ring-1 ring-blue-600/30'
-                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#151c2c] hover:border-blue-500 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161b22] hover:border-blue-500 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                       }`}
                       onClick={() => handlePresetSelect(preset.id)}
                       disabled={isSubmitting}
@@ -266,7 +266,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             <div className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Anteprima Scheda Progetto</span>
               <div className="flex items-center gap-3 px-3.5 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-lg">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 [&>div]:w-6 [&>div]:h-6 [&>div>svg]:w-full [&>div>svg]:h-full">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 [&>div]:w-6 [&>div]:h-6 [&>div>svg]:w-full [&>div>svg]:h-full">
                   <div dangerouslySetInnerHTML={{ __html: activePreset.svg }} />
                 </div>
                 <div className="flex flex-col gap-0.5 overflow-hidden min-w-0">
@@ -280,10 +280,10 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           </div>
 
           {/* Footer con Azioni */}
-          <div className="flex items-center justify-end gap-3 px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#111827]">
+          <div className="flex items-center justify-end gap-3 px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#161b22]">
             <button
               type="button"
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
               onClick={onClose}
               disabled={isSubmitting}
             >

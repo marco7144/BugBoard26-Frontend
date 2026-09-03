@@ -63,7 +63,7 @@ export const CommentInput: React.FC<CommentInputProps> = ({
 
   return (
     <form
-      className={`flex flex-col gap-3 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-xs mt-2 ${className}`.trim()}
+      className={`flex flex-col gap-3 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-lg p-4 shadow-xs mt-2 ${className}`.trim()}
       onSubmit={handleSubmit}
     >
       <div className="flex items-center gap-2.5">
@@ -76,7 +76,7 @@ export const CommentInput: React.FC<CommentInputProps> = ({
       </div>
 
       <textarea
-        className="w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-md resize-y min-h-20 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-[#151c2c] focus:ring-3 focus:ring-blue-500/20 disabled:opacity-60 disabled:cursor-not-allowed placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all font-sans"
+        className="w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-md resize-y min-h-20 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-[#161b22] focus:ring-3 focus:ring-blue-500/20 disabled:opacity-60 disabled:cursor-not-allowed placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all font-sans"
         placeholder="Scrivi un commento... (Ctrl + Invio per inviare)"
         value={body}
         onChange={(e) => setBody(e.target.value)}

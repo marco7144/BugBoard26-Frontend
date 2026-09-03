@@ -85,7 +85,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   };
 
   return (
-    <div className="w-full max-w-110 flex flex-col gap-5 p-7 sm:p-8 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
+    <div className="w-full max-w-110 flex flex-col gap-5 p-7 sm:p-8 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs">
       {/* Brand Header */}
       <div className="text-center flex flex-col items-center gap-1.5 mb-1">
         <div
@@ -128,7 +128,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               id="login-email"
               type="email"
               name="email"
-              className={`w-full pl-9.5 pr-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
+              className={`w-full pl-9.5 pr-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
                 validationErrors.email
                   ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
                   : 'border-slate-300 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-blue-600/20'
@@ -169,7 +169,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               id="login-password"
               type={showPassword ? 'text' : 'password'}
               name="password"
-              className={`w-full pl-9.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
+              className={`w-full pl-9.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
                 validationErrors.password
                   ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
                   : 'border-slate-300 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-blue-600/20'

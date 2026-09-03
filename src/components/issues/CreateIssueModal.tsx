@@ -174,12 +174,12 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
   return (
     <dialog
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
+      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
       open
       aria-labelledby="create-issue-title"
       aria-modal="true"
     >
-      <div className="relative bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-185 flex flex-col overflow-visible my-auto">
+      <div className="relative bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-185 flex flex-col overflow-visible my-auto">
         {/* Header Modale */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 rounded-t-2xl gap-3">
           <h2 id="create-issue-title" className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100 m-0">
@@ -216,7 +216,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
               <input
                 id="issue-title"
                 type="text"
-                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#1e293b] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 ${
+                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#21262d] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 ${
                   titleError
                     ? 'border-red-500 focus:border-red-500 ring-red-500/15'
                     : 'border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500'
@@ -250,7 +250,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                         className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border transition-all cursor-pointer select-none whitespace-nowrap ${
                           isSelected
                             ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
-                            : 'bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            : 'bg-white dark:bg-[#21262d] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                         }`}
                         onClick={() => setType(key as IssueType)}
                         disabled={isSubmitting}
@@ -277,7 +277,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                         className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border transition-all cursor-pointer select-none whitespace-nowrap ${
                           isSelected
                             ? `${PRIORITY_ACTIVE_STYLES[key as IssuePriority]} shadow-xs`
-                            : 'bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            : 'bg-white dark:bg-[#21262d] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                         }`}
                         onClick={() => setPriority(key as IssuePriority)}
                         disabled={isSubmitting}
@@ -299,7 +299,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
               <textarea
                 id="issue-desc"
                 rows={3}
-                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#1e293b] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 min-h-16 max-h-27.5 resize-y ${
+                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#21262d] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 min-h-16 max-h-27.5 resize-y ${
                   descError
                     ? 'border-red-500 focus:border-red-500 ring-red-500/15'
                     : 'border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500'
@@ -371,7 +371,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
           <div className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-2xl">
             <button
               type="button"
-              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-xs transition-all disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-xs transition-all disabled:opacity-50"
               onClick={handleClose}
               disabled={isSubmitting}
             >

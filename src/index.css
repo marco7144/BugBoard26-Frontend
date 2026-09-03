@@ -46,7 +46,7 @@
   }
 
   [data-theme="dark"] ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #30363d;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -54,6 +54,6 @@
   }
 
   [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #484f58;
   }
 }

@@ -236,7 +236,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
           return (
             <li
               key={participant.id}
-              className="flex items-center gap-3 p-2.5 sm:px-3 sm:py-2.5 bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 rounded-lg transition-all"
+              className="flex items-center gap-3 p-2.5 sm:px-3 sm:py-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 rounded-lg transition-all"
             >
               <div
                 className="w-8.5 h-8.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shrink-0 select-none border border-blue-200/60 dark:border-blue-900/50"
@@ -299,7 +299,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
     >
       <div
         ref={modalContainerRef}
-        className="relative w-full max-w-145 max-h-[90vh] bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-145 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
       >
         {/* Intestazione Modale */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 gap-3">
@@ -369,7 +369,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
                 <form onSubmit={handleAddParticipant} className="w-full">
                   <div className="flex gap-2 items-center">
                     <select
-                      className="flex-1 px-2.5 py-2 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                      className="flex-1 px-2.5 py-2 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                       value={selectedUserId}
                       onChange={(e) => setSelectedUserId(e.target.value)}
                       disabled={isSubmitting || isLoading}
@@ -431,7 +431,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
                 <Search size={14} className="absolute left-2 text-slate-400 pointer-events-none" />
                 <input
                   type="text"
-                  className="pl-6.5 pr-2 py-1 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#151c2c] border border-slate-300 dark:border-slate-700 rounded-md w-40 focus:w-48 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-all"
+                  className="pl-6.5 pr-2 py-1 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-md w-40 focus:w-48 focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 transition-all"
                   placeholder="Cerca membro..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -446,10 +446,10 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
         </div>
 
         {/* Footer Modale */}
-        <div className="flex items-center justify-end px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#111827]">
+        <div className="flex items-center justify-end px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#161b22]">
           <button
             type="button"
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
             onClick={onClose}
             disabled={isSubmitting}
           >

@@ -15,7 +15,7 @@ export const Header: React.FC = () => {
   const userInitial = user?.username ? user.username.charAt(0).toUpperCase() : 'U';
 
   return (
-    <header className="h-16 bg-white dark:bg-[#151c2c] border-b border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-50 transition-colors">
+    <header className="h-16 bg-white dark:bg-[#161b22] border-b border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-50 transition-colors">
       {/* Sezione Sinistra: Stato Progetto Attivo */}
       <div className="flex items-center gap-3">
         <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
@@ -52,7 +52,7 @@ export const Header: React.FC = () => {
         <button
           type="button"
           onClick={logout}
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#1e293b] border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer"
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 border border-red-800 dark:border-red-400 rounded-md transition-all cursor-pointer shadow-xs"
           title="Disconnettiti dalla sessione"
           aria-label="Logout"
         >

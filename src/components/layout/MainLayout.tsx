@@ -13,7 +13,7 @@ interface MainLayoutProps {
  */
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-[#0b101b] text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-[#0d1117] text-slate-900 dark:text-slate-100 transition-colors">
       <Sidebar />
       <div className="flex-1 min-w-0 flex flex-col h-screen">
         <Header />

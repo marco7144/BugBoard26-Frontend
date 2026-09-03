@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-start sm:justify-center items-center relative p-5 sm:p-8 bg-slate-50 dark:bg-[#0b101b] transition-colors">
+    <div className="min-h-screen w-full flex flex-col justify-start sm:justify-center items-center relative p-5 sm:p-8 bg-slate-50 dark:bg-[#0d1117] transition-colors">
       {/* Selettore Tema in alto a destra */}
       <div className="static sm:absolute sm:top-5 sm:right-6 mb-4 sm:mb-0 self-end flex items-center gap-3 z-10">
         <ThemeToggle />
