@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Users,
   X,
@@ -58,6 +58,14 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
   const modalContainerRef = useRef<HTMLDivElement>(null);
 
+  const handleClose = useCallback(() => {
+    setSelectedUserId('');
+    setSearchQuery('');
+    setApiError(null);
+    setSuccessMessage(null);
+    onClose();
+  }, [onClose]);
+
   // Caricamento iniziale dei dati alla visualizzazione della modale
   useEffect(() => {
     if (!isOpen || activeProjectId === undefined) {
@@ -66,10 +74,6 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
     let isMounted = true;
     setIsLoading(true);
-    setApiError(null);
-    setSuccessMessage(null);
-    setSelectedUserId('');
-    setSearchQuery('');
 
     const fetchInitialData = async () => {
       const [participantsResult, usersResult] = await Promise.allSettled([
@@ -105,7 +109,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen && !isSubmitting) {
-        onClose();
+        handleClose();
       }
     };
 
@@ -115,7 +119,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, isSubmitting, onClose]);
+  }, [isOpen, isSubmitting, handleClose]);
 
   // Gestione click all'esterno del modale
   useEffect(() => {
@@ -126,7 +130,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
         modalContainerRef.current &&
         !modalContainerRef.current.contains(e.target as Node)
       ) {
-        onClose();
+        handleClose();
       }
     };
 
@@ -136,7 +140,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [isOpen, isSubmitting, onClose]);
+  }, [isOpen, isSubmitting, handleClose]);
 
   // Utenti disponibili da aggiungere (esclusi quelli già partecipanti)
   const availableUsersToAdd = useMemo(() => {
@@ -239,7 +243,11 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
               className="flex items-center gap-3 p-2.5 sm:px-3 sm:py-2.5 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 rounded-lg transition-all"
             >
               <div
-                className="w-8.5 h-8.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shrink-0 select-none border border-blue-200/60 dark:border-blue-900/50"
+                className={`w-8.5 h-8.5 rounded-full flex items-center justify-center font-bold text-sm shrink-0 select-none border ${
+                  isUserAdmin
+                    ? 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 border-red-300 dark:border-red-500/40'
+                    : 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-500/40'
+                }`}
                 aria-hidden="true"
               >
                 {initial}
@@ -251,7 +259,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
                     {participant.username}
                   </span>
                   {isCurrentUser && (
-                    <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/50">
+                    <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-500/40">
                       Tu
                     </span>
                   )}
@@ -272,14 +280,14 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
               <div className="flex items-center shrink-0">
                 <span
-                  className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded ${
+                  className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded ${
                     isUserAdmin
-                      ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50'
-                      : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50'
+                      ? 'bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-500/50'
+                      : 'bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-500/50'
                   }`}
                   title={`Ruolo di sistema: ${participant.type || 'USER'}`}
                 >
-                  {isUserAdmin && <Shield size={11} />}
+                  {isUserAdmin && <Shield size={11} className="shrink-0" />}
                   <span>{participant.type || 'USER'}</span>
                 </span>
               </div>
@@ -292,14 +300,14 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
   return (
     <dialog
-      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-slate-900/55 backdrop-blur-xs box-border animate-in fade-in duration-150"
+      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-black/30 backdrop-blur-xs box-border"
       open
       aria-labelledby="participants-modal-title"
       aria-modal="true"
     >
       <div
         ref={modalContainerRef}
-        className="relative w-full max-w-145 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-145 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
       >
         {/* Intestazione Modale */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 gap-3">
@@ -325,8 +333,8 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
           </div>
           <button
             type="button"
-            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
-            onClick={onClose}
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+            onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi finestra"
           >
@@ -335,7 +343,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
         </div>
 
         {/* Corpo Modale */}
-        <div className="p-4.5 sm:p-5 overflow-y-auto flex-1 flex flex-col gap-3.5">
+        <div className="p-4.5 sm:p-5 overflow-y-auto overflow-x-hidden flex-1 flex flex-col gap-3.5">
           {/* Banner Errore API */}
           {apiError && (
             <div
@@ -366,10 +374,10 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
               </div>
 
               {availableUsersToAdd.length > 0 ? (
-                <form onSubmit={handleAddParticipant} className="w-full">
-                  <div className="flex gap-2 items-center">
+                <form onSubmit={handleAddParticipant} className="w-full min-w-0">
+                  <div className="flex gap-2 items-center w-full min-w-0">
                     <select
-                      className="flex-1 px-2.5 py-2 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                      className="flex-1 min-w-0 px-2.5 py-2 text-[13px] text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60 disabled:cursor-not-allowed transition-all truncate"
                       value={selectedUserId}
                       onChange={(e) => setSelectedUserId(e.target.value)}
                       disabled={isSubmitting || isLoading}

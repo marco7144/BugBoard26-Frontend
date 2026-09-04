@@ -103,14 +103,14 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
   return (
     <dialog
-      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-slate-900/60 backdrop-blur-xs box-border animate-in fade-in duration-150"
+      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-black/30 backdrop-blur-xs box-border"
       open
       aria-labelledby="create-user-modal-title"
       aria-modal="true"
     >
       <div
         ref={modalContainerRef}
-        className="w-full max-w-md bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden"
       >
         {/* Header Modale */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800">
@@ -227,7 +227,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 border border-emerald-800 dark:border-emerald-400 disabled:opacity-50 rounded-lg transition-all cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 active:bg-green-800 disabled:opacity-50 rounded-lg transition-all cursor-pointer shadow-xs"
             >
               {isSubmitting && <Loader2 size={14} className="animate-spin" aria-hidden="true" />}
               <span>{isSubmitting ? 'Registrazione...' : 'Registra Utente'}</span>

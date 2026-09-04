@@ -15,12 +15,17 @@ export const Header: React.FC = () => {
   const userInitial = user?.username ? user.username.charAt(0).toUpperCase() : 'U';
 
   return (
-    <header className="h-16 bg-white dark:bg-[#161b22] border-b border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-50 transition-colors">
+    <header className="h-16 bg-white dark:bg-[#161b22] border-b border-slate-300 dark:border-slate-700 shadow-xs flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-50 transition-colors">
       {/* Sezione Sinistra: Stato Progetto Attivo */}
-      <div className="flex items-center gap-3">
-        <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span>{selectedProject ? selectedProject.name : 'Nessun progetto selezionato'}</span>
+      <div className="flex items-center gap-3 min-w-0 flex-1 mr-4">
+        <div className="inline-flex items-center gap-1.5 text-xl font-semibold text-slate-900 dark:text-slate-100 min-w-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+          <span
+            className="truncate max-w-50 sm:max-w-xs md:max-w-md lg:max-w-xl"
+            title={selectedProject ? selectedProject.name : 'Nessun progetto selezionato'}
+          >
+            {selectedProject ? selectedProject.name : 'Nessun progetto selezionato'}
+          </span>
         </div>
       </div>
 
@@ -32,17 +37,21 @@ export const Header: React.FC = () => {
           className="flex items-center gap-2 py-1 pl-1.5 pr-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full"
           title={`Connesso come ${user?.username || 'Utente'}`}
         >
-          <div className="w-6.5 h-6.5 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+          <div
+            className={`w-6.5 h-6.5 rounded-full text-white text-xs font-bold flex items-center justify-center ${
+              isAdmin ? 'bg-red-600' : 'bg-blue-600'
+            }`}
+          >
             {userInitial}
           </div>
           <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 hidden sm:inline">
             {user?.username}
           </span>
           <span
-            className={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-sm ${
+            className={`inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-sm ${
               isAdmin
-                ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50'
-                : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50'
+                ? 'bg-red-100 dark:bg-red-500/20 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-500/50'
+                : 'bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-500/50'
             }`}
           >
             {user?.role || 'USER'}

@@ -134,7 +134,7 @@ export const AdminUsersPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 border border-emerald-800 dark:border-emerald-400 rounded-lg cursor-pointer shadow-xs transition-all shrink-0"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg cursor-pointer shadow-xs transition-all shrink-0"
             title="Registra un nuovo account"
           >
             <UserPlus size={16} aria-hidden="true" />

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Bug, LayoutDashboard, Users, FolderKanban, Plus, Tag } from 'lucide-react';
+import { Bug, LayoutDashboard, Users, FolderKanban, Plus, Tag, ChevronDown, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useProject } from '../../context/ProjectContext';
 import { CreateProjectModal } from '../projects/CreateProjectModal';
@@ -17,25 +17,41 @@ export const Sidebar: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState<boolean>(false);
   const [isLabelsModalOpen, setIsLabelsModalOpen] = useState<boolean>(false);
+  const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState<boolean>(false);
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const projectId = Number(e.target.value);
-    if (!Number.isNaN(projectId)) {
-      selectProjectById(projectId);
-    }
-  };
+  // Chiudi la tendina al click esterno o pressione di Escape
+  useEffect(() => {
+    if (!isProjectDropdownOpen) return;
+
+    const handleEvents = (e: MouseEvent | KeyboardEvent) => {
+      if (
+        (e instanceof MouseEvent && projectDropdownRef.current && !projectDropdownRef.current.contains(e.target as Node)) ||
+        (e instanceof KeyboardEvent && e.key === 'Escape')
+      ) {
+        setIsProjectDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleEvents);
+    document.addEventListener('keydown', handleEvents);
+    return () => {
+      document.removeEventListener('mousedown', handleEvents);
+      document.removeEventListener('keydown', handleEvents);
+    };
+  }, [isProjectDropdownOpen]);
 
   return (
     <>
-      <aside className="w-17 md:w-62.5 h-screen sticky top-0 bg-white dark:bg-[#161b22] border-r border-slate-200 dark:border-slate-800 flex flex-col py-3.5 px-2 md:py-5 md:px-3.5 gap-4 shrink-0 transition-colors">
+      <aside className="w-17 md:w-62.5 h-screen sticky top-0 bg-white dark:bg-[#161b22] border-r border-slate-300 dark:border-slate-700 flex flex-col py-3.5 px-2 md:py-5 md:px-3.5 gap-4 shrink-0 transition-colors">
         {/* 1. Branding */}
         <Link
           to="/"
-          className="flex items-center gap-2.5 font-bold text-[1.15rem] text-blue-600 dark:text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 p-[4px_6px] select-none transition-colors"
+          className="flex items-center gap-2.5 font-bold text-[1.15rem] text-slate-900 dark:text-slate-100 hover:text-slate-500 dark:hover:text-slate-400 p-[4px_6px] select-none transition-colors"
           title="BugBoard26 Home"
         >
-          <div className="w-8 h-8 rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center shrink-0">
-            <Bug size={18} />
+          <div className="w-8 h-8 rounded-lg bg-none dark:bg-[#161b22] text-slate-900 dark:text-slate-100 flex items-center justify-center shrink-0">
+            <Bug size={23} />
           </div>
           <span className="hidden md:inline">BugBoard26</span>
         </Link>
@@ -46,24 +62,65 @@ export const Sidebar: React.FC = () => {
             <FolderKanban size={14} className="shrink-0" />
             <span className="hidden md:inline">Progetto Attivo</span>
           </div>
-          <select
-            className="hidden md:block w-full px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#21262d] text-slate-900 dark:text-slate-100 font-semibold text-sm outline-none cursor-pointer focus:border-blue-600 dark:focus:border-blue-500 transition-colors"
-            value={selectedProject?.id ?? ''}
-            onChange={handleProjectChange}
-            aria-label="Seleziona Progetto Attivo"
-          >
-            {projects.length === 0 ? (
-              <option value="" disabled>
-                Nessun progetto
-              </option>
-            ) : (
-              projects.map((proj) => (
-                <option key={proj.id} value={proj.id}>
-                  {proj.name}
-                </option>
-              ))
+          {/* Menu a tendina personalizzato Progetti (con limite altezza max-h-55 e scrollbar) */}
+          <div className="relative hidden md:block" ref={projectDropdownRef}>
+            <button
+              type="button"
+              disabled={projects.length === 0}
+              className={`w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md border bg-white dark:bg-[#21262d] text-slate-900 dark:text-slate-100 font-semibold text-sm outline-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors ${
+                isProjectDropdownOpen
+                  ? 'border-blue-600 dark:border-blue-500 ring-2 ring-blue-600/15 dark:ring-blue-500/25'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+              onClick={() => setIsProjectDropdownOpen((prev) => !prev)}
+              aria-haspopup="listbox"
+              aria-expanded={isProjectDropdownOpen}
+              aria-label="Seleziona Progetto Attivo"
+            >
+              <span className="truncate text-left">
+                {selectedProject?.name ?? (projects.length === 0 ? 'Nessun progetto' : 'Seleziona progetto')}
+              </span>
+              <ChevronDown
+                size={14}
+                className={`text-slate-400 dark:text-slate-500 shrink-0 transition-transform duration-150 ${
+                  isProjectDropdownOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''
+                }`}
+              />
+            </button>
+
+            {isProjectDropdownOpen && projects.length > 0 && (
+              <div
+                className="absolute top-[calc(100%+4px)] left-0 w-full max-h-55 overflow-y-auto overscroll-contain bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg z-50 p-1 flex flex-col gap-0.5"
+                role="listbox"
+              >
+                {projects.map((proj) => {
+                  const isSelected = selectedProject?.id === proj.id;
+                  return (
+                    <button
+                      key={proj.id}
+                      type="button"
+                      className={`flex items-center justify-between gap-2 w-full px-2.5 py-1.75 text-[13px] rounded-md text-left cursor-pointer select-none transition-colors border-none bg-transparent ${
+                        isSelected
+                          ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold'
+                          : 'text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400'
+                      }`}
+                      onClick={() => {
+                        selectProjectById(proj.id);
+                        setIsProjectDropdownOpen(false);
+                      }}
+                      role="option"
+                      aria-selected={isSelected}
+                    >
+                      <span className="truncate">{proj.name}</span>
+                      {isSelected && (
+                        <Check size={13} className="shrink-0 text-blue-600 dark:text-blue-400" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             )}
-          </select>
+          </div>
 
           {/* Azioni Progetto: Partecipanti & Nuovo Progetto */}
           <div className="hidden md:flex flex-col gap-1.5">
@@ -141,7 +198,7 @@ export const Sidebar: React.FC = () => {
       </aside>
 
       {/* Finestra Modale Creazione Progetto (Admin) */}
-      {isAdmin && (
+      {isAdmin && isCreateModalOpen && (
         <CreateProjectModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
@@ -149,7 +206,7 @@ export const Sidebar: React.FC = () => {
       )}
 
       {/* Finestra Modale Gestione Partecipanti Progetto */}
-      {selectedProject && (
+      {selectedProject && isParticipantsModalOpen && (
         <ProjectParticipantsModal
           isOpen={isParticipantsModalOpen}
           onClose={() => setIsParticipantsModalOpen(false)}
@@ -157,10 +214,12 @@ export const Sidebar: React.FC = () => {
       )}
 
       {/* Finestra Modale Gestione Etichette */}
-      <LabelManagerModal
-        isOpen={isLabelsModalOpen}
-        onClose={() => setIsLabelsModalOpen(false)}
-      />
+      {isLabelsModalOpen && (
+        <LabelManagerModal
+          isOpen={isLabelsModalOpen}
+          onClose={() => setIsLabelsModalOpen(false)}
+        />
+      )}
     </>
   );
 };

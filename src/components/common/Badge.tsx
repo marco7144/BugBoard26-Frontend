@@ -6,8 +6,8 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
-  Bug,
-  Sparkles,
+  AlertTriangle,
+  Plus,
   CircleHelp,
   BookOpen,
   type LucideIcon,
@@ -79,7 +79,7 @@ export const Badge: React.FC<BadgeProps> = ({
     if (!IconOrElement) return null;
 
     // Se è un componente Lucide Icon
-    if (typeof IconOrElement === 'function' || (typeof IconOrElement === 'object' && 'render' in (IconOrElement as any))) {
+    if (typeof IconOrElement === 'function' || (typeof IconOrElement === 'object' && IconOrElement !== null && 'render' in IconOrElement)) {
       const LucideComp = IconOrElement as LucideIcon;
       return (
         <LucideComp
@@ -141,12 +141,12 @@ export const STATUS_CONFIG: Record<IssueState, StatusBadgeConfig> = {
     className: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300/80 dark:border-slate-700',
   },
   INPROGRESS: {
-    label: 'In Progress',
+    label: 'In Corso',
     icon: Clock,
     className: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-300/80 dark:border-amber-900/50',
   },
   CLOSED: {
-    label: 'Closed',
+    label: 'Chiuso',
     icon: CheckCircle2,
     className: 'bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 border border-teal-300/80 dark:border-teal-900/50',
   },
@@ -156,7 +156,7 @@ export const PRIORITY_CONFIG: Record<IssuePriority, PriorityBadgeConfig> = {
   LOW: {
     label: 'Bassa',
     icon: ArrowDown,
-    className: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300/80 dark:border-slate-700',
+    className: 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-300/80 dark:border-green-900/50',
   },
   MEDIUM: {
     label: 'Media',
@@ -173,12 +173,12 @@ export const PRIORITY_CONFIG: Record<IssuePriority, PriorityBadgeConfig> = {
 export const TYPE_CONFIG: Record<IssueType, TypeBadgeConfig> = {
   BUG: {
     label: 'Bug',
-    icon: Bug,
+    icon: AlertTriangle,
     className: 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-300/80 dark:border-red-900/50',
   },
   FEATURE: {
     label: 'Feature',
-    icon: Sparkles,
+    icon: Plus,
     className: 'bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 border border-orange-300/80 dark:border-orange-900/50',
   },
   QUESTION: {
@@ -230,7 +230,7 @@ export function getTypeConfig(type?: string | null): TypeBadgeConfig {
   }
   return {
     label: type || 'Issue',
-    icon: Bug,
+    icon: AlertTriangle,
     className: 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-300/80 dark:border-red-900/50',
   };
 }

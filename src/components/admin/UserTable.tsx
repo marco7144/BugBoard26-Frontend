@@ -28,7 +28,7 @@ export const UserTable: React.FC<UserTableProps> = ({
   if (isLoading) {
     return (
       <div
-        className={`w-full p-12 flex flex-col items-center justify-center gap-3 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 ${className}`.trim()}
+        className={`w-full min-h-131.5 p-12 flex flex-col items-center justify-center gap-3 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 ${className}`.trim()}
       >
         <Loader2 className="animate-spin text-slate-700 dark:text-slate-300" size={28} aria-hidden="true" />
         <p className="text-sm font-medium">Caricamento utenti in corso...</p>
@@ -40,7 +40,7 @@ export const UserTable: React.FC<UserTableProps> = ({
   if (!users || users.length === 0) {
     return (
       <div
-        className={`w-full p-12 flex flex-col items-center justify-center gap-2 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-center text-slate-500 dark:text-slate-400 ${className}`.trim()}
+        className={`w-full min-h-131.5 p-12 flex flex-col items-center justify-center gap-2 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-center text-slate-500 dark:text-slate-400 ${className}`.trim()}
       >
         <Users size={32} className="opacity-50" aria-hidden="true" />
         <p className="text-sm font-medium">Nessun utente registrato trovato.</p>
@@ -51,12 +51,12 @@ export const UserTable: React.FC<UserTableProps> = ({
   // 3. Tabella Utenti
   return (
     <div
-      className={`w-full bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs ${className}`.trim()}
+      className={`w-full min-h-131.5 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs ${className}`.trim()}
     >
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+            <tr className="h-11 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
               <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-20">
                 ID
               </th>
@@ -71,7 +71,7 @@ export const UserTable: React.FC<UserTableProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+          <tbody className="text-sm">
             {users.map((u) => {
               const isAdmin = u.type === 'ADMIN';
               const initial = u.username ? u.username.charAt(0).toUpperCase() : 'U';
@@ -79,13 +79,13 @@ export const UserTable: React.FC<UserTableProps> = ({
               return (
                 <tr
                   key={u.id}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                  className="h-15 border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                 >
-                  <td className="px-5 py-3.5 font-mono text-xs text-slate-500 dark:text-slate-400">
+                  <td className="px-5 py-3.5 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                     #{u.id}
                   </td>
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 select-none border ${
                           isAdmin
@@ -96,15 +96,15 @@ export const UserTable: React.FC<UserTableProps> = ({
                       >
                         {initial}
                       </div>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">
                         {u.username}
                       </span>
                     </div>
                   </td>
-                  <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400">
+                  <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400 truncate max-w-xs">
                     {u.email || '-'}
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3.5 whitespace-nowrap">
                     <span
                       className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded ${
                         isAdmin

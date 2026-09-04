@@ -89,9 +89,9 @@ export const IssueList: React.FC<IssueListProps> = ({
   // 3. Stato Normale: Griglia di Issue Cards
   return (
     <div className={`w-full flex flex-col gap-4 ${className}`.trim()}>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full list-none p-0 m-0">
+      <ul className="flex flex-col gap-3.5 w-full list-none p-0 m-0 min-h-245.5">
         {issues.map((issue) => (
-          <li key={issue.id ?? `${issue.title}-${issue.creationDate}`} className="list-none flex flex-col h-full">
+          <li key={issue.id ?? `${issue.title}-${issue.creationDate}`} className="list-none w-full">
             <IssueCard
               issue={issue}
               projectId={projectId}

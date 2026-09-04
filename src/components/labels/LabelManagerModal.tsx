@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Tag, X, Plus, Pencil, Trash2, Check, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { labelService, type LabelResponseDto } from '../../services/labelService';
 import { useAuth } from '../../context/AuthContext';
@@ -55,13 +55,17 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
     }
   };
 
+  const handleClose = useCallback(() => {
+    setNewName('');
+    setNewColor(PRESET_LABEL_COLORS[0]);
+    setEditingId(null);
+    setApiError(null);
+    onClose();
+  }, [onClose]);
+
   // Caricamento al momento dell'apertura
   useEffect(() => {
     if (isOpen) {
-      setNewName('');
-      setNewColor(PRESET_LABEL_COLORS[0]);
-      setEditingId(null);
-      setApiError(null);
       loadLabels();
     }
   }, [isOpen]);
@@ -70,12 +74,12 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen && !isCreating && !isSavingEdit) {
-        onClose();
+        handleClose();
       }
     };
     if (isOpen) window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isCreating, isSavingEdit, onClose]);
+  }, [isOpen, isCreating, isSavingEdit, handleClose]);
 
   if (!isOpen) return null;
 
@@ -180,7 +184,7 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
     }
 
     return (
-      <div className="flex flex-col gap-1.5 max-h-60 overflow-y-auto pr-1">
+      <div className="flex flex-col gap-1.5 max-h-60 overflow-y-auto overscroll-contain pr-1">
         {labels.map((lbl) => {
           if (lbl.id === undefined) return null;
           const isEditing = editingId === lbl.id;
@@ -276,12 +280,12 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
 
   return (
     <dialog
-      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
+      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
       open
       aria-labelledby="label-manager-title"
       aria-modal="true"
     >
-      <div className="relative bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-130 flex flex-col my-auto overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-130 flex flex-col my-auto overflow-hidden">
         {/* Header Modale */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 rounded-t-2xl gap-3">
           <h2 id="label-manager-title" className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100 m-0">
@@ -291,14 +295,14 @@ export const LabelManagerModal: React.FC<LabelManagerModalProps> = ({
           <button
             type="button"
             className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Chiudi finestra"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="flex flex-col gap-4 p-6 overflow-y-auto max-h-[calc(85vh-130px)]">
+        <div className="flex flex-col gap-4 p-6 overflow-y-auto overscroll-contain max-h-[calc(85vh-130px)]">
           {/* Banner Errore */}
           {apiError && (
             <div className="flex items-center gap-2.5 p-3 text-sm bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/50 rounded-lg" role="alert">

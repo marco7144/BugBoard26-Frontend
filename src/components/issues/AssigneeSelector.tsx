@@ -44,22 +44,19 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
   const { isAdmin } = useAuth();
   const effectiveProjectId = issue.projectId ?? projectId;
 
-  const [participants, setParticipants] = useState<UserResponseDto[]>(externalParticipants ?? []);
+  const [internalParticipants, setInternalParticipants] = useState<UserResponseDto[]>([]);
+  const participants = externalParticipants ?? internalParticipants;
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (externalParticipants) {
-      setParticipants(externalParticipants);
-      return;
-    }
-    if (effectiveProjectId) {
+    if (!externalParticipants && effectiveProjectId) {
       projectService
         .getParticipants(effectiveProjectId)
-        .then((data) => setParticipants(data || []))
-        .catch(() => setParticipants([]));
+        .then((data) => setInternalParticipants(data || []))
+        .catch(() => setInternalParticipants([]));
     }
   }, [effectiveProjectId, externalParticipants]);
 

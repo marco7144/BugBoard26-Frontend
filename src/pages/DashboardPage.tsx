@@ -6,7 +6,7 @@ import {
   AlertCircle,
   FolderKanban,
   Clock,
-  Bug,
+  AlertTriangle,
   CheckCircle2,
   Layers,
   ChevronLeft,
@@ -25,7 +25,7 @@ import {
 import { IssueList } from '../components/issues/IssueList';
 import { CreateIssueModal } from '../components/issues/CreateIssueModal';
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 6;
 
 const KPI_ICON_STYLES: Record<string, string> = {
   total: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
@@ -180,7 +180,7 @@ export const DashboardPage: React.FC = () => {
     {
       label: 'Bug Segnalati',
       value: stats.bugs,
-      icon: Bug,
+      icon: AlertTriangle,
       variant: 'bugs',
       active: filters.type === 'BUG',
       onClick: () => {
@@ -250,7 +250,7 @@ export const DashboardPage: React.FC = () => {
           {isAuthenticated && selectedProject && (
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 border border-emerald-800 dark:border-emerald-400 rounded-lg cursor-pointer shadow-xs transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg cursor-pointer shadow-xs transition-all"
               onClick={() => setIsCreateModalOpen(true)}
             >
               <Plus size={16} />
@@ -351,7 +351,7 @@ export const DashboardPage: React.FC = () => {
                   type="button"
                   className={`inline-flex items-center justify-center min-w-8.5 h-8.5 px-2 text-sm rounded-lg cursor-pointer transition-all ${
                     item === currentPage
-                      ? 'bg-blue-600 text-white font-semibold'
+                      ? 'bg-slate-100 dark:bg-slate-800 border border-slate-400 dark:border-slate-500 text-slate-950 dark:text-white font-bold shadow-xs ring-1 ring-slate-400/40 dark:ring-slate-500/40'
                       : 'text-slate-600 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 font-medium'
                   }`}
                   onClick={() => setCurrentPage(item)}
@@ -381,17 +381,19 @@ export const DashboardPage: React.FC = () => {
         </nav>
       )}
 
-      {/* 7. Modale Creazione Nuova Issue (F2 - Step 17) */}
-      <CreateIssueModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        projectId={selectedProject?.id}
-        onSuccess={() => {
-          if (selectedProject?.id) {
-            loadDashboardData(selectedProject.id);
-          }
-        }}
-      />
+      {/* 7. Modale Creazione Nuova Issue */}
+      {isCreateModalOpen && (
+        <CreateIssueModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          projectId={selectedProject?.id}
+          onSuccess={() => {
+            if (selectedProject?.id) {
+              loadDashboardData(selectedProject.id);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
