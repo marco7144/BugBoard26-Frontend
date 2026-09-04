@@ -118,23 +118,23 @@ export const IssueDetailPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
-    if (!isValidId(projectId) || !isValidId(issueId)) {
-      setError('Identificativo progetto o issue non valido.');
-      setIsLoading(false);
-      return () => {
-        isMounted = false;
-      };
-    }
-
-    if (selectedProject?.id !== projectId) {
+    if (isValidId(projectId) && selectedProject?.id !== projectId) {
       selectProjectById(projectId);
     }
 
-    setIsLoading(true);
-    setIsCommentsLoading(true);
-    setError(null);
-
     const loadData = async () => {
+      if (!isValidId(projectId) || !isValidId(issueId)) {
+        if (isMounted) {
+          setError('Identificativo progetto o issue non valido.');
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      setIsLoading(true);
+      setIsCommentsLoading(true);
+      setError(null);
+
       try {
         const data = await fetchIssuePageData(projectId, issueId);
         if (!isMounted) return;
@@ -254,27 +254,27 @@ export const IssueDetailPage: React.FC = () => {
       </div>
 
       {/* 2. Griglia Principale a 2 Colonne */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start w-full">
         {/* Colonna Sinistra (Main Content) */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 min-w-0 w-full">
           {/* Card Intestazione & Titolo */}
-          <div className="bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-xs flex flex-col gap-4">
+          <div className="bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-xs flex flex-col gap-4 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <TypeBadge type={issue.type} size="md" />
               <PriorityBadge priority={issue.priority} size="md" />
               <StatusBadge status={issue.state} size="md" />
             </div>
 
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 leading-snug wrap-break-word m-0">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 leading-snug wrap-anywhere m-0">
               {issue.title || 'Senza titolo'}
             </h1>
 
             {/* Descrizione */}
-            <div>
+            <div className="min-w-0">
               <h2 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 mt-0">
                 Descrizione
               </h2>
-              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap wrap-break-word m-0">
+              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap wrap-anywhere m-0">
                 {issue.description && issue.description.trim().length > 0
                   ? issue.description
                   : 'Nessuna descrizione fornita per questo ticket.'}
@@ -333,28 +333,34 @@ export const IssueDetailPage: React.FC = () => {
             </h2>
             <div className="flex flex-col gap-4">
               {/* Progetto */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 min-w-0">
                 <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Progetto
                 </span>
-                <div className="flex items-center gap-2">
-                  <FolderKanban size={16} className="text-blue-600 dark:text-blue-400" />
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FolderKanban size={16} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span
+                    className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate"
+                    title={selectedProject?.name || `Progetto #${projectId}`}
+                  >
                     {selectedProject?.name || `Progetto #${projectId}`}
                   </span>
                 </div>
               </div>
 
               {/* Creatore */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 min-w-0">
                 <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Creato Da
                 </span>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center justify-center border border-blue-200 dark:border-blue-900/50" aria-hidden="true">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center justify-center border border-blue-200 dark:border-blue-900/50 shrink-0" aria-hidden="true">
                     {creatorInitial}
                   </div>
-                  <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                  <span
+                    className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate"
+                    title={issue.creatorUsername || 'Utente sconosciuto'}
+                  >
                     {issue.creatorUsername || 'Utente sconosciuto'}
                   </span>
                 </div>
@@ -392,15 +398,17 @@ export const IssueDetailPage: React.FC = () => {
       </div>
 
       {/* 3. Modale Modifica Dati Issue (F9) */}
-      <IssueEditModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        issue={issue}
-        projectId={projectId}
-        onSuccess={handleIssueUpdated}
-      />
+      {isEditModalOpen && (
+        <IssueEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          issue={issue}
+          projectId={projectId}
+          onSuccess={handleIssueUpdated}
+        />
+      )}
 
-      {/* 4. Lightbox Immagine Ingrandita (KISS) */}
+      {/* 4. Lightbox Immagine Ingrandita */}
       {isLightboxOpen && imageSrc && (
         <dialog
           className="fixed inset-0 w-full h-full max-w-none max-h-none m-0 p-6 bg-black/80 backdrop-blur-xs flex items-center justify-center z-9999 border-0"

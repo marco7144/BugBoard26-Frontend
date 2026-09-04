@@ -105,7 +105,7 @@ export const CommentList: React.FC<CommentListProps> = ({
                     {formatDate(comment.date)}
                   </span>
                 </div>
-                <div className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap wrap-break-word">
+                <div className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap wrap-anywhere">
                   {comment.body}
                 </div>
               </div>

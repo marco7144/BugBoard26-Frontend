@@ -35,6 +35,8 @@ export interface LabelSelectorProps {
   onLabelCreated?: (newLabel: LabelResponseDto) => void;
   /** Abilita la creazione rapida di nuove etichette (default: true) */
   allowCreate?: boolean;
+  /** Limite massimo di etichette selezionabili (default: 10) */
+  maxLabels?: number;
   /** Testo segnaposto quando non ci sono selezioni */
   placeholder?: string;
   /** Disabilita il selettore */
@@ -54,6 +56,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
   availableLabels: propAvailableLabels,
   onLabelCreated,
   allowCreate = true,
+  maxLabels = 10,
   placeholder = 'Seleziona o crea etichette...',
   disabled = false,
   className = '',
@@ -112,6 +115,11 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
   const handleToggleLabel = (labelId: number) => {
     if (disabled) return;
     const isSelected = selectedLabelIds.includes(labelId);
+    if (!isSelected && selectedLabelIds.length >= maxLabels) {
+      setCreateError(`È possibile selezionare al massimo ${maxLabels} etichette.`);
+      return;
+    }
+    setCreateError(null);
     onChange(isSelected ? selectedLabelIds.filter((i) => i !== labelId) : [...selectedLabelIds, labelId]);
   };
 
@@ -119,6 +127,11 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
   const handleCreateLabel = async () => {
     const name = searchQuery.trim();
     if (!name || disabled || !allowCreate) return;
+
+    if (selectedLabelIds.length >= maxLabels) {
+      setCreateError(`È possibile selezionare al massimo ${maxLabels} etichette.`);
+      return;
+    }
 
     // Controllo client-side duplicati
     if (labelsList.some((l) => (l.name || '').trim().toLowerCase() === name.toLowerCase())) {
@@ -161,10 +174,14 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
     .filter((l): l is LabelResponseDto => Boolean(l));
 
   const selectedCount = selectedLabels.length;
+  const isMaxReached = selectedCount >= maxLabels;
   const countSuffix = selectedCount === 1 ? 'a' : 'e';
-  const summaryText = selectedCount === 0
-    ? placeholder
-    : `${selectedCount} etichett${countSuffix} selezionat${countSuffix}`;
+  let summaryText = placeholder;
+  if (isMaxReached) {
+    summaryText = `${selectedCount}/${maxLabels} etichette selezionate (limite massimo)`;
+  } else if (selectedCount > 0) {
+    summaryText = `${selectedCount}/${maxLabels} etichett${countSuffix} selezionat${countSuffix}`;
+  }
 
   let triggerBorderClass = 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600';
   if (isOpen) {
@@ -178,16 +195,23 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
       return filteredLabels.map((lbl) => {
         if (lbl.id === undefined) return null;
         const isSelected = selectedLabelIds.includes(lbl.id);
+        const isDisabledOption = !isSelected && isMaxReached;
+
+        let optionStateClass = 'text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer';
+        if (isDisabledOption) {
+          optionStateClass = 'opacity-40 cursor-not-allowed text-slate-400 dark:text-slate-600';
+        } else if (isSelected) {
+          optionStateClass = 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold cursor-pointer';
+        }
+
         return (
           <button
             key={lbl.id}
             type="button"
-            className={`w-full flex items-center gap-2 px-2.5 py-1.75 bg-transparent border-none rounded-md cursor-pointer text-left font-sans transition-colors ${
-              isSelected
-                ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold'
-                : 'text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className={`w-full flex items-center gap-2 px-2.5 py-1.75 bg-transparent border-none rounded-md text-left font-sans transition-opacity ${optionStateClass}`}
             onClick={() => handleToggleLabel(lbl.id!)}
+            disabled={isDisabledOption}
+            title={isDisabledOption ? `Limite massimo di ${maxLabels} etichette raggiunto` : undefined}
             aria-pressed={isSelected}
           >
             <span
@@ -251,7 +275,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
 
       {/* Menu Dropdown */}
       {isOpen && (
-        <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl z-50 flex flex-col overflow-hidden animate-in fade-in duration-100">
+        <div className="absolute top-[calc(100%+4px)] left-0 right-0 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl z-50 flex flex-col overflow-hidden">
           {/* Barra Ricerca Live */}
           <div className="flex items-center gap-1.5 px-2.5 py-2 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
             <Search size={14} className="text-slate-400 dark:text-slate-500 shrink-0" aria-hidden="true" />
@@ -280,7 +304,7 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
           </div>
 
           {/* Lista Etichette */}
-          <div className="max-h-45 overflow-y-auto p-1 flex flex-col gap-0.5">
+          <div className="max-h-45 overflow-y-auto overscroll-contain p-1 flex flex-col gap-0.5">
             {renderLabelsList()}
           </div>
 

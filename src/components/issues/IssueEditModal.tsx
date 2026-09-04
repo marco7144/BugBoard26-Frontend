@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Pencil, X, AlertCircle, ShieldAlert, Loader2, Image as ImageIcon, Trash2, Save } from 'lucide-react';
 import { issueService, type IssueResponseDto, type IssueType, type IssuePriority } from '../../services/issueService';
 import { useProject } from '../../context/ProjectContext';
@@ -18,6 +18,13 @@ export interface IssueEditPermissionResult {
   canEdit: boolean;
   reason?: string;
 }
+
+const TYPE_ACTIVE_STYLES: Record<IssueType, string> = {
+  BUG: 'border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 ring-1 ring-red-500/30 font-semibold',
+  FEATURE: 'border-orange-500 dark:border-orange-500 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 ring-1 ring-orange-500/30 font-semibold',
+  QUESTION: 'border-indigo-500 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 ring-1 ring-indigo-500/30 font-semibold',
+  DOCUMENTATION: 'border-teal-500 dark:border-teal-500 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 ring-1 ring-teal-500/30 font-semibold',
+};
 
 /**
  * Verifica i permessi di modifica della issue secondo lo State Pattern del backend:
@@ -78,6 +85,23 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleClose = useCallback(() => {
+    if (isSubmitting) return;
+    setError(null);
+    onClose();
+  }, [isSubmitting, onClose]);
+
+  // Gestione tasto ESC per chiudere il modale
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && !isSubmitting) {
+        handleClose();
+      }
+    };
+    if (isOpen) window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isSubmitting, handleClose]);
+
   // Sincronizza i dati quando cambia la issue selezionata o all'apertura
   useEffect(() => {
     if (isOpen && issue) {
@@ -121,21 +145,45 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
     e.preventDefault();
     if (!canEdit || !effectiveProjectId || !issue.id) return;
 
+    const trimmedTitle = title.trim();
+    const trimmedDesc = description.trim();
+
+    if (!trimmedTitle) {
+      setError('Il titolo è obbligatorio.');
+      return;
+    }
+    if (trimmedTitle.length > 120) {
+      setError('Il titolo non può superare i 120 caratteri.');
+      return;
+    }
+    if (!trimmedDesc) {
+      setError('La descrizione è obbligatoria.');
+      return;
+    }
+    if (trimmedDesc.length > 255) {
+      setError('La descrizione non può superare i 255 caratteri.');
+      return;
+    }
+    if (selectedLabelIds.length > 10) {
+      setError('Non è possibile selezionare più di 10 etichette.');
+      return;
+    }
+
     const rawBase64 = imageDataUrl?.includes(',') ? imageDataUrl.split(',')[1] : imageDataUrl || undefined;
     setIsSubmitting(true);
     setError(null);
 
     try {
       const updated = await issueService.updateIssue(effectiveProjectId, issue.id, {
-        title: title.trim(),
-        description: description.trim(),
+        title: trimmedTitle,
+        description: trimmedDesc,
         type,
         priority,
         image: rawBase64,
         labelIds: selectedLabelIds,
       });
       onSuccess?.(updated);
-      onClose();
+      handleClose();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Errore durante il salvataggio.');
     } finally {
@@ -145,7 +193,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
 
   return (
     <dialog
-      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
+      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
       open
       aria-labelledby="edit-issue-title"
       aria-modal="true"
@@ -166,7 +214,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
           <button
             type="button"
             className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi finestra"
           >
@@ -201,9 +249,14 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
 
             {/* Titolo */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="issue-edit-title-input" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Titolo <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="issue-edit-title-input" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Titolo <span className="text-red-500">*</span>
+                </label>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
+                  {title.length}/120
+                </span>
+              </div>
               <input
                 id="issue-edit-title-input"
                 type="text"
@@ -230,8 +283,8 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
                         type="button"
                         className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-xs font-medium rounded-lg border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap font-sans ${
                           isSelected
-                            ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-semibold ring-1 ring-blue-600/30'
-                            : 'bg-white dark:bg-[#161b22] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-600 dark:hover:border-blue-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            ? `${TYPE_ACTIVE_STYLES[key as IssueType]} shadow-xs`
+                            : 'bg-white dark:bg-[#161b22] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                         }`}
                         onClick={() => setType(key as IssueType)}
                         disabled={!canEdit || isSubmitting}
@@ -257,7 +310,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
                     } else if (key === 'MEDIUM') {
                       activeClasses = 'border-amber-500 bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 ring-1 ring-amber-500/30';
                     } else if (key === 'LOW') {
-                      activeClasses = 'border-slate-500 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-1 ring-slate-500/30';
+                      activeClasses = 'border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-300 ring-1 ring-green-500/30';
                     }
 
                     return (
@@ -267,7 +320,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
                         className={`inline-flex items-center justify-center gap-1.5 px-2 py-2 text-xs font-medium rounded-lg border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap font-sans ${
                           isSelected
                             ? `${activeClasses} font-semibold`
-                            : 'bg-white dark:bg-[#161b22] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-600 dark:hover:border-blue-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            : 'bg-white dark:bg-[#161b22] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                         }`}
                         onClick={() => setPriority(key as IssuePriority)}
                         disabled={!canEdit || isSubmitting}
@@ -283,9 +336,14 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
 
             {/* Descrizione */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="issue-edit-desc-input" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Descrizione <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="issue-edit-desc-input" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Descrizione <span className="text-red-500">*</span>
+                </label>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
+                  {description.length}/255
+                </span>
+              </div>
               <textarea
                 id="issue-edit-desc-input"
                 rows={3}
@@ -293,6 +351,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={!canEdit || isSubmitting}
+                maxLength={255}
                 required
               />
             </div>
@@ -348,7 +407,7 @@ export const IssueEditModal: React.FC<IssueEditModalProps> = ({
           <div className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-2xl">
             <button
               type="button"
-              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-xs transition-all disabled:opacity-50"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-400 dark:border-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring "
               onClick={onClose}
               disabled={isSubmitting}
             >

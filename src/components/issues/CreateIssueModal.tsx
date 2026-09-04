@@ -29,10 +29,30 @@ export interface CreateIssueModalProps {
   onSuccess?: (createdIssue: IssueResponseDto) => void;
 }
 
+const TYPE_ACTIVE_STYLES: Record<IssueType, string> = {
+  BUG: 'border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 ring-1 ring-red-500/30 font-semibold',
+  FEATURE: 'border-orange-500 dark:border-orange-500 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 ring-1 ring-orange-500/30 font-semibold',
+  QUESTION: 'border-indigo-500 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 ring-1 ring-indigo-500/30 font-semibold',
+  DOCUMENTATION: 'border-teal-500 dark:border-teal-500 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 ring-1 ring-teal-500/30 font-semibold',
+};
+
+const TYPE_HOVER_STYLES: Record<IssueType, string> = {
+  BUG: 'hover:border-red-400 dark:hover:border-red-400 hover:text-red-700 dark:hover:text-red-400',
+  FEATURE: 'hover:border-orange-400 dark:hover:border-orange-400 hover:text-orange-700 dark:hover:text-orange-400',
+  QUESTION: 'hover:border-indigo-400 dark:hover:border-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-400',
+  DOCUMENTATION: 'hover:border-teal-400 dark:hover:border-teal-400 hover:text-teal-700 dark:hover:text-teal-400',
+};
+
 const PRIORITY_ACTIVE_STYLES: Record<IssuePriority, string> = {
-  HIGH: 'bg-red-50 dark:bg-red-950/40 border-red-500 text-red-700 dark:text-red-400 font-semibold',
-  MEDIUM: 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-700 dark:text-amber-400 font-semibold',
-  LOW: 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-700 dark:text-blue-400 font-semibold',
+  HIGH: 'bg-red-50 dark:bg-red-950/40 border-red-500 dark:border-red-500 text-red-700 dark:text-red-400 ring-1 ring-red-500/30 font-semibold',
+  MEDIUM: 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 dark:border-amber-500 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30 font-semibold',
+  LOW: 'bg-green-50 dark:bg-green-950/40 border-green-500 dark:border-green-500 text-green-700 dark:text-green-400 ring-1 ring-green-500/30 font-semibold',
+};
+
+const PRIORITY_HOVER_STYLES: Record<IssuePriority, string> = {
+  HIGH: 'hover:border-red-400 dark:hover:border-red-400 hover:text-red-700 dark:hover:text-red-400',
+  MEDIUM: 'hover:border-amber-400 dark:hover:border-amber-400 hover:text-amber-700 dark:hover:text-amber-400',
+  LOW: 'hover:border-green-400 dark:hover:border-green-400 hover:text-green-700 dark:hover:text-green-400',
 };
 
 /**
@@ -125,9 +145,21 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
     if (!trimmedTitle) {
       setTitleError('Il titolo della issue è obbligatorio.');
       hasErrors = true;
+    } else if (trimmedTitle.length > 120) {
+      setTitleError('Il titolo non può superare i 120 caratteri.');
+      hasErrors = true;
     }
+
     if (!trimmedDesc) {
       setDescError('La descrizione della issue è obbligatoria.');
+      hasErrors = true;
+    } else if (trimmedDesc.length > 255) {
+      setDescError('La descrizione non può superare i 255 caratteri.');
+      hasErrors = true;
+    }
+
+    if (selectedLabelIds.length > 10) {
+      setApiError('Non è possibile selezionare più di 10 etichette.');
       hasErrors = true;
     }
 
@@ -163,7 +195,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
       if (onSuccess) {
         onSuccess(created);
       }
-      onClose();
+      handleClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Errore durante la creazione della issue.';
       setApiError(msg);
@@ -174,7 +206,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
   return (
     <dialog
-      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
+      className="fixed inset-0 z-1000 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs w-full h-full border-none max-w-none max-h-none overflow-y-auto"
       open
       aria-labelledby="create-issue-title"
       aria-modal="true"
@@ -182,13 +214,13 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
       <div className="relative bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-185 flex flex-col overflow-visible my-auto">
         {/* Header Modale */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 rounded-t-2xl gap-3">
-          <h2 id="create-issue-title" className="flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100 m-0">
-            <PlusCircle size={20} className="text-blue-600 dark:text-blue-500" />
+          <h2 id="create-issue-title" className="flex items-center gap-2.5 text-lg font-semibold text-slate-900 dark:text-slate-100 m-0">
+            <PlusCircle size={25} className="text-green-600 dark:text-green-400 shrink-0" />
             <span>Nuova Issue</span>
           </h2>
           <button
             type="button"
-            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
             onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi modale"
@@ -210,16 +242,21 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
             {/* Titolo */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="issue-title" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Titolo <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="issue-title" className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                  Titolo <span className="text-red-500">*</span>
+                </label>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
+                  {title.length}/120
+                </span>
+              </div>
               <input
                 id="issue-title"
                 type="text"
-                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#21262d] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 ${
+                className={`w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
                   titleError
-                    ? 'border-red-500 focus:border-red-500 ring-red-500/15'
-                    : 'border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500'
+                    ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
+                    : 'border-slate-300 dark:border-slate-600 focus:border-slate-400 dark:focus:border-slate-300 focus:ring-slate-400/20'
                 }`}
                 placeholder="es. Errore 500 durante il salvataggio"
                 value={title}
@@ -231,14 +268,14 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                 autoFocus
                 maxLength={120}
               />
-              {titleError && <span className="text-xs text-red-500">{titleError}</span>}
+              {titleError && <span className="text-xs text-red-600 dark:text-red-400">{titleError}</span>}
             </div>
 
             {/* Griglia Tipo & Priorità */}
             <div className="grid grid-cols-1 sm:grid-cols-[1.15fr_1fr] gap-4">
               {/* Tipo */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Tipo</span>
+                <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Tipo</span>
                 <div className="grid grid-cols-2 gap-1.5">
                   {Object.entries(TYPE_CONFIG).map(([key, config]) => {
                     const Icon = config.icon;
@@ -247,10 +284,10 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                       <button
                         key={key}
                         type="button"
-                        className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border transition-all cursor-pointer select-none whitespace-nowrap ${
+                        className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border-2 transition-all duration-30 cursor-pointer select-none whitespace-nowrap font-sans ${
                           isSelected
-                            ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
-                            : 'bg-white dark:bg-[#21262d] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            ? `${TYPE_ACTIVE_STYLES[key as IssueType]} shadow-xs`
+                            : `border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161b22] ${TYPE_HOVER_STYLES[key as IssueType]} hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-300 font-medium`
                         }`}
                         onClick={() => setType(key as IssueType)}
                         disabled={isSubmitting}
@@ -265,7 +302,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
               {/* Priorità */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Priorità</span>
+                <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Priorità</span>
                 <div className="grid grid-cols-3 gap-1.5">
                   {Object.entries(PRIORITY_CONFIG).map(([key, config]) => {
                     const Icon = config.icon;
@@ -274,10 +311,10 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                       <button
                         key={key}
                         type="button"
-                        className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border transition-all cursor-pointer select-none whitespace-nowrap ${
+                        className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-2 text-[13px] rounded-lg border-2 transition-all duration-30 cursor-pointer select-none whitespace-nowrap font-sans ${
                           isSelected
                             ? `${PRIORITY_ACTIVE_STYLES[key as IssuePriority]} shadow-xs`
-                            : 'bg-white dark:bg-[#21262d] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            : `border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161b22] ${PRIORITY_HOVER_STYLES[key as IssuePriority]} hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-300 font-medium`
                         }`}
                         onClick={() => setPriority(key as IssuePriority)}
                         disabled={isSubmitting}
@@ -293,16 +330,21 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
             {/* Descrizione */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="issue-desc" className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Descrizione <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="issue-desc" className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                  Descrizione <span className="text-red-500">*</span>
+                </label>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
+                  {description.length}/255
+                </span>
+              </div>
               <textarea
                 id="issue-desc"
                 rows={3}
-                className={`w-full px-3 py-2 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#21262d] border rounded-lg outline-none transition-all placeholder:text-slate-400 focus:ring-3 focus:ring-blue-600/15 min-h-16 max-h-27.5 resize-y ${
+                className={`w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 min-h-16 max-h-27.5 resize-y disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
                   descError
-                    ? 'border-red-500 focus:border-red-500 ring-red-500/15'
-                    : 'border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500'
+                    ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
+                    : 'border-slate-300 dark:border-slate-600 focus:border-slate-400 dark:focus:border-slate-300 focus:ring-slate-400/20'
                 }`}
                 placeholder="Fornisci dettagli sul problema riscontrato o sulla funzionalità richiesta..."
                 value={description}
@@ -311,13 +353,14 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                   if (descError) setDescError(null);
                 }}
                 disabled={isSubmitting}
+                maxLength={255}
               />
-              {descError && <span className="text-xs text-red-500">{descError}</span>}
+              {descError && <span className="text-xs text-red-600 dark:text-red-400">{descError}</span>}
             </div>
 
             {/* Etichette / Labels (Selettore Multiplo Modulare) */}
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Etichette (opzionale)</span>
+              <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Etichette (opzionale)</span>
               <LabelSelector
                 selectedLabelIds={selectedLabelIds}
                 onChange={setSelectedLabelIds}
@@ -327,7 +370,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
 
             {/* Allegato Immagine */}
             <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Allegato Immagine (opzionale)</span>
+              <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Allegato Immagine (opzionale)</span>
               {imageDataUrl ? (
                 <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg">
                   <img
@@ -352,7 +395,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
                   </div>
                 </div>
               ) : (
-                <label className="flex items-center justify-center gap-2 p-2.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 text-[13px] cursor-pointer hover:border-blue-600 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                <label className="flex items-center justify-center gap-2 p-2.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 text-[13px] cursor-pointer hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp,image/gif"
@@ -367,11 +410,11 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
             </div>
           </div>
 
-          {/* Footer Azioni */}
-          <div className="flex items-center justify-end gap-2.5 px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-2xl">
+          {/* Footer con Azioni bottone Annulla e Crea Issue */}
+          <div className="flex items-center justify-end gap-3 px-6 py-3.5 bg-white dark:bg-[#161b22] rounded-b-2xl">
             <button
               type="button"
-              className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer shadow-xs transition-all disabled:opacity-50"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-400 dark:border-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring cursor-pointer"
               onClick={handleClose}
               disabled={isSubmitting}
             >
@@ -379,7 +422,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 rounded-lg cursor-pointer shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg shadow-xs disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500/90 dark:focus:ring-green-400/90 cursor-pointer transition-all duration-75"
               disabled={isSubmitting || !title.trim() || !description.trim()}
             >
               {isSubmitting ? (

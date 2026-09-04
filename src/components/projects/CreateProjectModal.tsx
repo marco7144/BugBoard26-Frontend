@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FolderPlus, X, AlertCircle, Loader2 } from 'lucide-react';
 import { projectService, type ProjectResponseDto } from '../../services/projectService';
 import { useProject } from '../../context/ProjectContext';
@@ -33,15 +33,20 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const nameInputRef = useRef<HTMLInputElement>(null);
   const modalContainerRef = useRef<HTMLDivElement>(null);
 
+  // Chiusura con reset dello stato del form
+  const handleClose = useCallback(() => {
+    if (isSubmitting) return;
+    setName('');
+    setSelectedPresetId('folder-blue');
+    setNameError(null);
+    setApiError(null);
+    setIsSubmitting(false);
+    onClose();
+  }, [isSubmitting, onClose]);
+
   // Focus automatico sul campo nome quando il modale viene aperto
   useEffect(() => {
     if (isOpen) {
-      setName('');
-      setSelectedPresetId('folder-blue');
-      setNameError(null);
-      setApiError(null);
-      setIsSubmitting(false);
-
       const timer = setTimeout(() => {
         nameInputRef.current?.focus();
       }, 50);
@@ -53,7 +58,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen && !isSubmitting) {
-        onClose();
+        handleClose();
       }
     };
 
@@ -63,7 +68,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, isSubmitting, onClose]);
+  }, [isOpen, isSubmitting, handleClose]);
 
   // Gestione click esterno al contenitore per chiudere il modale
   useEffect(() => {
@@ -74,7 +79,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         modalContainerRef.current &&
         !modalContainerRef.current.contains(e.target as Node)
       ) {
-        onClose();
+        handleClose();
       }
     };
 
@@ -84,7 +89,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [isOpen, isSubmitting, onClose]);
+  }, [isOpen, isSubmitting, handleClose]);
 
   if (!isOpen) {
     return null;
@@ -139,7 +144,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
       if (onSuccess) {
         onSuccess(createdProject);
       }
-      onClose();
+      handleClose();
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Errore durante la creazione del progetto.';
@@ -154,25 +159,26 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
   return (
     <dialog
-      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-slate-900/55 backdrop-blur-xs box-border animate-in fade-in duration-150"
+      className="fixed inset-0 z-1000 flex items-center justify-center w-screen h-screen max-w-none max-h-none m-0 p-4 border-none bg-black/30 backdrop-blur-xs box-border"
       open
       aria-labelledby="create-project-title"
       aria-modal="true"
     >
+      {/* Contenitore Modale */}
       <div
         ref={modalContainerRef}
-        className="relative w-full max-w-130 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
-      >
+        className="relative w-full max-w-130 max-h-[90vh] bg-white dark:bg-[#161b22] border-2 border-slate-300 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        >
         {/* Intestazione Modale */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 gap-3">
+        <div className="flex items-center justify-between px-5 py-4 gap-3">
           <h2 id="create-project-title" className="flex items-center gap-2.5 text-lg font-semibold text-slate-900 dark:text-slate-100 m-0">
-            <FolderPlus size={20} className="text-blue-600 dark:text-blue-400 shrink-0" />
+            <FolderPlus size={25} className="text-yellow-500 dark:text-yellow-400 shrink-0" />
             <span>Nuovo Progetto</span>
           </h2>
           <button
             type="button"
-            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
-            onClick={onClose}
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+            onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi finestra"
           >
@@ -183,8 +189,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         {/* Corpo del Form */}
         <form onSubmit={handleSubmit} noValidate className="flex flex-col flex-1 overflow-hidden m-0">
           <div className="p-5 sm:p-6 overflow-y-auto flex-1 flex flex-col gap-4">
-            {/* Banner Errore API */}
-            {apiError && (
+            {/* Banner Errore API */ apiError && (
               <div
                 className="flex items-start gap-2.5 p-3 rounded-lg text-[13px] leading-snug bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400"
                 role="alert"
@@ -199,6 +204,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               <label htmlFor="project-name" className="text-sm font-medium text-slate-800 dark:text-slate-200">
                 Nome Progetto <span className="text-red-500">*</span>
               </label>
+              {/* Text Field Nome Progetto */}
               <input
                 ref={nameInputRef}
                 id="project-name"
@@ -206,7 +212,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 className={`w-full px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-[#161b22] border rounded-lg transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 ${
                   nameError
                     ? 'border-red-500 bg-red-50/20 dark:bg-red-950/10 focus:border-red-500 focus:ring-red-500/20 text-red-900 dark:text-red-200'
-                    : 'border-slate-300 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-blue-600/20'
+                    : 'border-slate-300 dark:border-slate-600 focus:border-slate-400 dark:focus:border-slate-300 focus:ring-slate-400/20'
                 }`}
                 placeholder="es. BugBoard Client Frontend"
                 value={name}
@@ -234,10 +240,10 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                     <button
                       key={preset.id}
                       type="button"
-                      className={`flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-lg border-2 transition-all cursor-pointer select-none font-sans ${
+                      className={`flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-lg border-2 transition-all duration-30 cursor-pointer select-none font-sans ${
                         isSelected
-                          ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/50 ring-1 ring-blue-600/30'
-                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161b22] hover:border-blue-500 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                          ? 'border-slate-400 dark:border-slate-400 bg-slate-50 dark:bg-slate-900 ring-1 ring-blue-600/30'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161b22] hover:border-slate-400 dark:hover:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                       }`}
                       onClick={() => handlePresetSelect(preset.id)}
                       disabled={isSubmitting}
@@ -262,9 +268,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               </div>
             </div>
 
-            {/* Anteprima Live del Progetto */}
+            {/* Anteprima Live del Progetto*/ }
             <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-slate-800 dark:text-slate-200">Anteprima Scheda Progetto</span>
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Anteprima Scheda Progetto</span>
               <div className="flex items-center gap-3 px-3.5 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-lg">
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 [&>div]:w-6 [&>div]:h-6 [&>div>svg]:w-full [&>div>svg]:h-full">
                   <div dangerouslySetInnerHTML={{ __html: activePreset.svg }} />
@@ -273,25 +279,29 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                   <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                     {name.trim() || 'Nome del Progetto'}
                   </span>
-                  <span className="text-xs text-slate-400 dark:text-slate-500">Creato da Amministratore</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Creato da Amministratore</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Footer con Azioni */}
-          <div className="flex items-center justify-end gap-3 px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#161b22]">
+          {/* Footer con Azioni bottone Annulla e Crea Progetto*/}
+          <div className="flex items-center justify-end gap-3 px-5 py-3.5 bg-white dark:bg-[#161b22]">
+            
+            {/* Bottone Annulla */}
             <button
               type="button"
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-400 dark:border-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring "
               onClick={onClose}
               disabled={isSubmitting}
             >
               Annulla
             </button>
+
+            {/* Bottone Crea Progetto */}
             <button
               type="submit"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-xs disabled:opacity-60 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-600/30"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg shadow-xs disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500/90 dark:focus:ring-green-400/90"
               disabled={isSubmitting || !name.trim()}
             >
               {isSubmitting ? (

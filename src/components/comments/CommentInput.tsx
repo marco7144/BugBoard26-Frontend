@@ -83,6 +83,7 @@ export const CommentInput: React.FC<CommentInputProps> = ({
         onKeyDown={handleKeyDown}
         disabled={disabled || isSubmitting}
         rows={3}
+        maxLength={255}
         required
       />
 
