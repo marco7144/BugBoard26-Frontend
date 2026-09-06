@@ -1,14 +1,15 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { UserPlus, ChevronLeft, ChevronRight, Search, Users } from 'lucide-react';
 import { UserTable } from '../components/admin/UserTable';
 import { CreateUserModal } from '../components/admin/CreateUserModal';
 import { userService, type UserResponseDto } from '../services/userService';
+import { useDebounce } from '../hooks/useDebounce';
 
-/** Numero di utenti visualizzati per pagina (identico al valore 6 della Dashboard) */
+/** Numero di utenti visualizzati per pagina (8 elementi per vista desktop/compatta) */
 const ITEMS_PER_PAGE = 8;
 
 /**
- * Calcola i numeri di pagina con finestra mobile ed ellissi (identico a DashboardPage).
+ * Calcola i numeri di pagina con finestra mobile ed ellissi per la navigazione.
  */
 function getPageNumbers(current: number, total: number): (number | string)[] {
   if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
@@ -22,23 +23,37 @@ function getPageNumbers(current: number, total: number): (number | string)[] {
  *
  * Responsabilità:
  * - Vista protetta riservata agli utenti con ruolo ADMIN.
- * - Recupera l'elenco degli utenti registrati tramite `userService.getAllUsers()`.
- * - Fornisce ricerca testuale e paginazione client-side identica a DashboardPage (6 elementi per pagina).
+ * - Recupera l'elenco degli utenti paginati dal Backend con `userService.getUsersPaged()`.
+ * - Fornisce ricerca testuale debounced (300ms) eseguita direttamente su database.
+ * - Paginazione server-side scalabile su dataset arbitrariamente grandi.
  * - Renderizza la tabella `UserTable` e permette di registrare nuovi utenti con `CreateUserModal`.
  */
 export const AdminUsersPage: React.FC = () => {
   const [users, setUsers] = useState<UserResponseDto[]>([]);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const reloadUsers = () => {
+  // Ritardo di digitazione (debounce 300ms) per evitare chiamate a ogni singolo carattere
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  const fetchUsers = useCallback((page: number, search: string) => {
     setIsLoading(true);
     userService
-      .getAllUsers()
+      .getUsersPaged({
+        page: page - 1,
+        size: ITEMS_PER_PAGE,
+        search: search.trim() || undefined,
+        sortBy: 'id',
+        sortDir: 'asc',
+      })
       .then((data) => {
-        setUsers(Array.isArray(data) ? data : []);
+        setUsers(Array.isArray(data.content) ? data.content : []);
+        setTotalElements(data.totalElements ?? 0);
+        setTotalPages(Math.max(1, data.totalPages ?? 1));
       })
       .catch((err) => {
         console.error('Errore durante il recupero degli utenti:', err);
@@ -46,58 +61,21 @@ export const AdminUsersPage: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  };
-
-  useEffect(() => {
-    let isMounted = true;
-
-    userService
-      .getAllUsers()
-      .then((data) => {
-        if (isMounted) {
-          setUsers(Array.isArray(data) ? data : []);
-        }
-      })
-      .catch((err) => {
-        console.error('Errore durante il recupero degli utenti:', err);
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
-  // Filtro in memoria per username, email, ID o ruolo
-  const filteredUsers = useMemo(() => {
-    if (!searchQuery.trim()) return users;
-    const q = searchQuery.toLowerCase().trim();
-    return users.filter(
-      (u) =>
-        u.username?.toLowerCase().includes(q) ||
-        u.email?.toLowerCase().includes(q) ||
-        String(u.id).includes(q) ||
-        u.type?.toLowerCase().includes(q)
-    );
-  }, [users, searchQuery]);
-
-  // Calcolo totale pagine
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / ITEMS_PER_PAGE));
-
-  // Slice paginato per la pagina corrente
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredUsers.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredUsers, currentPage]);
+  // Ricarica i dati quando cambia la pagina o il valore di ricerca debounced
+  useEffect(() => {
+    fetchUsers(currentPage, debouncedSearch);
+  }, [fetchUsers, currentPage, debouncedSearch]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset alla prima pagina quando l'utente digita
   };
+
+  const handleUserCreated = () => {
+    fetchUsers(currentPage, debouncedSearch);
+  };  
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-12 box-border">
@@ -107,7 +85,7 @@ export const AdminUsersPage: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full">
               <Users size={12} aria-hidden="true" />
-              <span>{users.length} {users.length === 1 ? 'utente registrato' : 'utenti registrati'}</span>
+              <span>{totalElements} {totalElements === 1 ? 'utente registrato' : 'utenti registrati'}</span>
             </span>
           </div>
           <h1 className="text-2xl sm:text-[26px] font-bold text-slate-900 dark:text-slate-100 m-0">
@@ -124,7 +102,7 @@ export const AdminUsersPage: React.FC = () => {
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <input
               type="text"
-              placeholder="Cerca utente o email..."
+              placeholder="Cerca username o email..."
               value={searchQuery}
               onChange={handleSearchChange}
               className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:border-slate-500 dark:focus:border-slate-400 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 transition-colors"
@@ -143,8 +121,8 @@ export const AdminUsersPage: React.FC = () => {
         </div>
       </header>
 
-      {/* 2. Tabella Utenti (Paginata) */}
-      <UserTable users={paginatedUsers} isLoading={isLoading} />
+      {/* 2. Tabella Utenti (Paginata dal server) */}
+      <UserTable users={users} isLoading={isLoading} />
 
       {/* 3. Controlli di Paginazione */}
       {totalPages > 1 && (
@@ -209,7 +187,7 @@ export const AdminUsersPage: React.FC = () => {
       <CreateUserModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onUserCreated={reloadUsers}
+        onUserCreated={handleUserCreated}
       />
     </div>
   );

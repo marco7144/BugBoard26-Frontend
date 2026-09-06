@@ -1,29 +1,15 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Plus,
-  RefreshCw,
-  AlertCircle,
-  FolderKanban,
-  Clock,
-  AlertTriangle,
-  CheckCircle2,
-  Layers,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Plus, RefreshCw, AlertCircle, FolderKanban, Clock, AlertTriangle, CheckCircle2, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useProject } from '../context/ProjectContext';
 import { useAuth } from '../context/AuthContext';
-import { issueService, type IssueResponseDto } from '../services/issueService';
+import { issueService, type IssueResponseDto, type IssueSummaryDto } from '../services/issueService';
 import { projectService, type UserResponseDto } from '../services/projectService';
 import { labelService, type LabelResponseDto } from '../services/labelService';
-import {
-  IssueFilterBar,
-  type IssueFilterState,
-  DEFAULT_ISSUE_FILTERS,
-} from '../components/issues/IssueFilterBar';
+import { IssueFilterBar, type IssueFilterState, DEFAULT_ISSUE_FILTERS } from '../components/issues/IssueFilterBar';
 import { IssueList } from '../components/issues/IssueList';
 import { CreateIssueModal } from '../components/issues/CreateIssueModal';
+import { useDebounce } from '../hooks/useDebounce';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -45,13 +31,13 @@ function getPageNumbers(current: number, total: number): (number | string)[] {
 }
 
 /**
- * Pagina Principale Dashboard Issue (Step 16 - Dev 2).
+ * Pagina Principale Dashboard Issue.
  *
  * Responsabilità:
- * - Mostra le issue del progetto selezionato con filtri e ordinamento.
- * - Fornisce KPI di riepilogo (Totale, Aperti, Bug, Risolti) con filtri rapidi.
- * - Ricerca testuale istantanea in memoria.
- * - Paginazione client-side intelligente con salto pagine ed ellissi.
+ * - Mostra le issue del progetto selezionato con paginazione e ricerca server-side (Spring Data JPA).
+ * - Fornisce KPI di riepilogo reali aggregati sul DB (Totale, Aperti, Bug, Risolti).
+ * - Ricerca testuale debounced (300ms) integrata con Specification JPA.
+ * - Paginazione server-side scalabile con salto pagine ed ellissi.
  */
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,62 +47,70 @@ export const DashboardPage: React.FC = () => {
   // Stati principali
   const [filters, setFilters] = useState<IssueFilterState>(DEFAULT_ISSUE_FILTERS);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [rawIssues, setRawIssues] = useState<IssueResponseDto[]>([]);
+  const [issues, setIssues] = useState<IssueResponseDto[]>([]);
+  const [totalElements, setTotalElements] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
+
+  // Metriche aggregate (KPI) caricate via endpoint dedicato
+  const [stats, setStats] = useState<IssueSummaryDto>({
+    total: 0,
+    open: 0,
+    bugs: 0,
+    closed: 0,
+  });
+
   const [participants, setParticipants] = useState<UserResponseDto[]>([]);
   const [labels, setLabels] = useState<LabelResponseDto[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
-  // Caricamento in parallelo di issue, partecipanti e label del progetto
+  // Ricerca debounced di 300ms per la search bar
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  // Caricamento issue paginate e dati ausiliari del progetto
   const loadDashboardData = useCallback(async (projectId: number) => {
     setIsLoading(true);
     setError(null);
     try {
-      const [issuesData, partsData, labelsData] = await Promise.all([
-        issueService.getIssues(projectId, filters),
+      const [issuesPage, partsData, labelsData, summaryData] = await Promise.all([
+        issueService.getIssues(projectId, {
+          type: filters.type,
+          state: filters.state,
+          priority: filters.priority,
+          assignedToId: filters.assignedToId,
+          labelId: filters.labelId,
+          search: debouncedSearch?.trim() || undefined,
+          page: currentPage - 1,
+          size: ITEMS_PER_PAGE,
+          sortBy: filters.sortBy,
+          sortDir: filters.sortDir,
+        }),
         projectService.getParticipants(projectId).catch(() => []),
-        labelService.getAllLabels(),
+        labelService.getAllLabels().catch(() => []),
+        issueService.getIssueSummary(projectId).catch(() => ({ total: 0, open: 0, bugs: 0, closed: 0 })),
       ]);
-      setRawIssues(Array.isArray(issuesData) ? issuesData : []);
+
+      setIssues(Array.isArray(issuesPage.content) ? issuesPage.content : []);
+      setTotalElements(issuesPage.totalElements ?? 0);
+      setTotalPages(Math.max(1, issuesPage.totalPages ?? 1));
       setParticipants(partsData);
       setLabels(labelsData);
+      setStats(summaryData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Errore nel caricamento della dashboard.');
     } finally {
       setIsLoading(false);
     }
-  }, [filters]);
+  }, [filters.type, filters.state, filters.priority, filters.assignedToId, filters.labelId, filters.sortBy, filters.sortDir, debouncedSearch, currentPage]);
 
-  // Ricarica i dati quando cambia il progetto o uno dei filtri
+  // Ricarica quando cambia progetto, filtri, ricerca debounced o pagina corrente
   useEffect(() => {
     if (!selectedProject?.id) return;
+    loadDashboardData(selectedProject.id);
+  }, [selectedProject?.id, loadDashboardData]);
 
-    let isMounted = true;
-    const projectId = selectedProject.id;
-
-    Promise.all([
-      issueService.getIssues(projectId, filters),
-      projectService.getParticipants(projectId).catch(() => []),
-      labelService.getAllLabels(),
-    ])
-      .then(([issuesData, partsData, labelsData]) => {
-        if (!isMounted) return;
-        setRawIssues(Array.isArray(issuesData) ? issuesData : []);
-        setParticipants(partsData);
-        setLabels(labelsData);
-      })
-      .catch((err) => {
-        if (!isMounted) return;
-        setError(err instanceof Error ? err.message : 'Errore nel caricamento della dashboard.');
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedProject?.id, filters]);
-
-  // Reset a pagina 1 quando cambiano filtri o ricerca
+  // Reset a pagina 1 quando cambiano i filtri o la query di ricerca debounced
   const handleFilterChange = (newFilters: IssueFilterState) => {
     setFilters(newFilters);
     setCurrentPage(1);
@@ -126,33 +120,6 @@ export const DashboardPage: React.FC = () => {
     setFilters(DEFAULT_ISSUE_FILTERS);
     setCurrentPage(1);
   };
-
-  // Ricerca testuale in-memory ultra-reattiva
-  const filteredIssues = useMemo(() => {
-    const query = filters.search?.trim().toLowerCase();
-    if (!query) return rawIssues;
-
-    return rawIssues.filter((i) =>
-      `${i.id} ${i.title} ${i.description} ${i.assignedToUsername} ${i.creatorUsername} ${i.labels?.map((l) => l.name).join(' ')}`
-        .toLowerCase()
-        .includes(query)
-    );
-  }, [rawIssues, filters.search]);
-
-  // Paginazione client-side
-  const totalPages = Math.max(1, Math.ceil(filteredIssues.length / ITEMS_PER_PAGE));
-  const paginatedIssues = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredIssues.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredIssues, currentPage]);
-
-  // Calcolo metriche KPI
-  const stats = useMemo(() => ({
-    total: rawIssues.length,
-    open: rawIssues.filter((i) => i.state === 'TODO' || i.state === 'INPROGRESS').length,
-    bugs: rawIssues.filter((i) => i.type === 'BUG').length,
-    closed: rawIssues.filter((i) => i.state === 'CLOSED').length,
-  }), [rawIssues]);
 
   // Configurazione card KPI
   const kpiCards = [
@@ -260,7 +227,7 @@ export const DashboardPage: React.FC = () => {
         </div>
       </header>
 
-      {/* 2. Bento KPI Cards */}
+      {/* 2. Bento KPI Cards (Dati reali aggregati dal DB) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Statistiche issue">
         {kpiCards.map(({ label, value, icon: Icon, variant, active, onClick }) => (
           <button
@@ -291,8 +258,8 @@ export const DashboardPage: React.FC = () => {
         participants={participants}
         labels={labels}
         onResetFilters={handleResetFilters}
-        totalCount={rawIssues.length}
-        filteredCount={filteredIssues.length}
+        totalCount={stats.total}
+        filteredCount={totalElements}
       />
 
       {/* 4. Banner di Errore */}
@@ -312,18 +279,18 @@ export const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* 5. Lista Issue (Paginata) */}
+      {/* 5. Lista Issue (Paginata dal server) */}
       <IssueList
-        issues={paginatedIssues}
+        issues={issues}
         isLoading={isLoading}
         projectId={selectedProject?.id}
         onIssueClick={(issue) =>
           selectedProject?.id && issue.id && navigate(`/projects/${selectedProject.id}/issues/${issue.id}`)
         }
         onResetFilters={handleResetFilters}
-        emptyTitle={rawIssues.length === 0 ? 'Nessuna issue presente' : 'Nessun risultato'}
+        emptyTitle={stats.total === 0 ? 'Nessuna issue presente' : 'Nessun risultato'}
         emptyDescription={
-          rawIssues.length === 0
+          stats.total === 0
             ? 'Questo progetto non ha ancora issue registrate.'
             : 'Nessuna issue corrisponde ai filtri selezionati.'
         }
@@ -361,7 +328,11 @@ export const DashboardPage: React.FC = () => {
                   {item}
                 </button>
               ) : (
-                <span key={item} className="inline-flex items-center justify-center min-w-6 text-slate-400 dark:text-slate-500 text-sm select-none" aria-hidden="true">
+                <span
+                  key={item}
+                  className="inline-flex items-center justify-center min-w-6 text-slate-400 dark:text-slate-500 text-sm select-none"
+                  aria-hidden="true"
+                >
                   ...
                 </span>
               )
@@ -382,16 +353,12 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* 7. Modale Creazione Nuova Issue */}
-      {isCreateModalOpen && (
+      {selectedProject && (
         <CreateIssueModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
-          projectId={selectedProject?.id}
-          onSuccess={() => {
-            if (selectedProject?.id) {
-              loadDashboardData(selectedProject.id);
-            }
-          }}
+          projectId={selectedProject.id}
+          onSuccess={() => loadDashboardData(selectedProject.id)}
         />
       )}
     </div>

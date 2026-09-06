@@ -244,6 +244,22 @@ export interface paths {
         patch: operations["assignIssue"];
         trace?: never;
     };
+    "/api/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/getusers": {
         parameters: {
             query?: never;
@@ -268,6 +284,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getCommentsByIssue_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{projectId}/issues/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getIssueSummary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -416,12 +448,46 @@ export interface components {
             /** Format: byte */
             icon: string;
         };
+        PageResponseDtoUserResponseDto: {
+            content?: components["schemas"]["UserResponseDto"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            last?: boolean;
+        };
         UserResponseDto: {
             /** Format: int64 */
             id?: number;
             username?: string;
             email?: string;
             type?: string;
+        };
+        IssueSummaryDto: {
+            /** Format: int64 */
+            total?: number;
+            /** Format: int64 */
+            open?: number;
+            /** Format: int64 */
+            bugs?: number;
+            /** Format: int64 */
+            closed?: number;
+        };
+        PageResponseDtoIssueResponseDto: {
+            content?: components["schemas"]["IssueResponseDto"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalElements?: number;
+            /** Format: int32 */
+            totalPages?: number;
+            last?: boolean;
         };
     };
     responses: never;
@@ -932,6 +998,32 @@ export interface operations {
             };
         };
     };
+    getUsers: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+                search?: string;
+                sortBy?: string;
+                sortDir?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDtoUserResponseDto"];
+                };
+            };
+        };
+    };
     getAllUsers: {
         parameters: {
             query?: never;
@@ -975,6 +1067,28 @@ export interface operations {
             };
         };
     };
+    getIssueSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IssueSummaryDto"];
+                };
+            };
+        };
+    };
     getIssues: {
         parameters: {
             query?: {
@@ -983,6 +1097,9 @@ export interface operations {
                 priority?: "HIGH" | "MEDIUM" | "LOW";
                 assignedToId?: number;
                 labelId?: number;
+                search?: string;
+                page?: number;
+                size?: number;
                 sortBy?: string;
                 sortDir?: string;
             };
@@ -1000,7 +1117,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["IssueResponseDto"][];
+                    "*/*": components["schemas"]["PageResponseDtoIssueResponseDto"];
                 };
             };
         };
@@ -1013,6 +1130,9 @@ export interface operations {
                 priority?: "HIGH" | "MEDIUM" | "LOW";
                 assignedToId?: number;
                 labelId?: number;
+                search?: string;
+                page?: number;
+                size?: number;
                 sortBy?: string;
                 sortDir?: string;
             };
@@ -1030,7 +1150,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["IssueResponseDto"][];
+                    "*/*": components["schemas"]["PageResponseDtoIssueResponseDto"];
                 };
             };
         };

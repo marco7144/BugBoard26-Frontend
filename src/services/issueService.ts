@@ -1,5 +1,6 @@
 import { apiClient } from './apiClient';
 import type { components } from '../types/api';
+import type { PageResponse } from '../types/pagination';
 
 export type IssueRequestDto = components['schemas']['IssueRequestDto'];
 export type IssueResponseDto = components['schemas']['IssueResponseDto'];
@@ -9,8 +10,10 @@ export type IssueType = NonNullable<IssueResponseDto['type']>;
 
 export type SortDirection = 'asc' | 'desc';
 
+export type IssueSummaryDto = components['schemas']['IssueSummaryDto'];
+
 /**
- * Parametri di query opzionali per il filtraggio e l'ordinamento delle issue.
+ * Parametri di query opzionali per il filtraggio, la ricerca e l'ordinamento delle issue.
  */
 export interface IssueFilterParams {
   type?: IssueType;
@@ -18,6 +21,9 @@ export interface IssueFilterParams {
   priority?: IssuePriority;
   assignedToId?: number;
   labelId?: number;
+  search?: string;
+  page?: number;
+  size?: number;
   sortBy?: string;
   sortDir?: SortDirection;
 }
@@ -47,17 +53,28 @@ function buildIssueQueryParams(params?: IssueFilterParams): string {
  */
 export const issueService = {
   /**
-   * Recupera l'elenco delle issue di un progetto con supporto a filtri e ordinamento.
+   * Recupera la pagina delle issue di un progetto con supporto a filtri, ricerca e ordinamento.
    * Endpoint protetto (`GET /api/projects/{projectId}/issues`).
    *
    * @param projectId - ID del progetto
-   * @param params - Parametri facoltativi di filtro (tipo, stato, priorità, assegnatario, label) e ordinamento
-   * @returns Lista delle issue filtrate e ordinate
+   * @param params - Parametri facoltativi di filtro (tipo, stato, priorità, assegnatario, label), ricerca e ordinamento
+   * @returns Pagina delle issue filtrate e ordinate con metadati
    */
-  getIssues(projectId: number, params?: IssueFilterParams): Promise<IssueResponseDto[]> {
+  getIssues(projectId: number, params?: IssueFilterParams): Promise<PageResponse<IssueResponseDto>> {
     const query = buildIssueQueryParams(params);
     const endpoint = `/api/projects/${projectId}/issues${query}`;
-    return apiClient.get<IssueResponseDto[]>(endpoint);
+    return apiClient.get<PageResponse<IssueResponseDto>>(endpoint);
+  },
+
+  /**
+   * Recupera il riepilogo delle metriche aggregate (KPI) delle issue per il progetto.
+   * Endpoint protetto (`GET /api/projects/{projectId}/issues/summary`).
+   *
+   * @param projectId - ID del progetto
+   * @returns Oggetto con totale ticket, aperti, bug e chiusi
+   */
+  getIssueSummary(projectId: number): Promise<IssueSummaryDto> {
+    return apiClient.get<IssueSummaryDto>(`/api/projects/${projectId}/issues/summary`);
   },
 
   /**
@@ -68,8 +85,8 @@ export const issueService = {
    * @returns Issue corrispondente o undefined se non trovata
    */
   async getIssueById(projectId: number, issueId: number): Promise<IssueResponseDto | undefined> {
-    const issues = await this.getIssues(projectId);
-    return issues.find((issue) => issue.id === issueId);
+    const page = await this.getIssues(projectId, { size: 100 });
+    return page.content?.find((issue) => issue.id === issueId);
   },
 
   /**
