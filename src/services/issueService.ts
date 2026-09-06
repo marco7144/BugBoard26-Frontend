@@ -79,14 +79,14 @@ export const issueService = {
 
   /**
    * Recupera una singola issue dato l'ID del progetto e l'ID della issue.
+   * Endpoint protetto (`GET /api/projects/{projectId}/issues/{issueId}`).
    *
    * @param projectId - ID del progetto
    * @param issueId - ID della issue
-   * @returns Issue corrispondente o undefined se non trovata
+   * @returns Issue corrispondente
    */
-  async getIssueById(projectId: number, issueId: number): Promise<IssueResponseDto | undefined> {
-    const page = await this.getIssues(projectId, { size: 100 });
-    return page.content?.find((issue) => issue.id === issueId);
+  getIssueById(projectId: number, issueId: number): Promise<IssueResponseDto> {
+    return apiClient.get<IssueResponseDto>(`/api/projects/${projectId}/issues/${issueId}`);
   },
 
   /**

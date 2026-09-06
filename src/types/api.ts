@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["getIssueById"];
         put: operations["updateIssue"];
         post?: never;
         delete?: never;
@@ -498,6 +498,29 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getIssueById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: number;
+                issueId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IssueResponseDto"];
+                };
+            };
+        };
+    };
     updateIssue: {
         parameters: {
             query?: never;
