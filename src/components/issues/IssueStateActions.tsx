@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RotateCcw, CheckCircle2, Loader2, Play } from 'lucide-react';
+import { RotateCcw, CheckCircle2, Loader2 } from 'lucide-react';
 import type { IssueResponseDto } from '../../services/issueService';
 import { issueService } from '../../services/issueService';
 import { useAuth } from '../../context/AuthContext';
@@ -16,56 +16,11 @@ export interface IssueStateActionsProps {
 }
 
 /**
- * Calcola i permessi di promozione e retrocessione secondo lo State Pattern del backend.
- */
-function getStatePermissions(state: string, isAssignee: boolean, isAdmin: boolean) {
-  const isAuthorized = isAssignee || isAdmin;
-  const canPromote = state === 'TODO' || (state === 'INPROGRESS' && isAuthorized);
-  const canDemote = (state === 'INPROGRESS' && isAuthorized) || (state === 'CLOSED' && isAdmin);
-
-  return { canPromote, canDemote };
-}
-
-/**
- * Restituisce label e motivazione per l'azione di promozione.
- */
-function getPromoteInfo(state: string, canPromote: boolean) {
-  if (state === 'CLOSED') {
-    return { label: 'Chiudi Issue', reason: 'La issue è già chiusa e non può avanzare' };
-  }
-  if (state === 'TODO') {
-    return { label: 'Assegna', reason: undefined };
-  }
-  return {
-    label: 'Chiudi Issue',
-    reason: canPromote ? undefined : "Solo l'assegnatario o un amministratore possono chiudere la issue",
-  };
-}
-
-/**
- * Restituisce label e motivazione per l'azione di retrocessione.
- */
-function getDemoteInfo(state: string, canDemote: boolean) {
-  if (state === 'TODO') {
-    return { label: 'Retrocedi a To Do', reason: 'La issue è già nello stato iniziale (To Do)' };
-  }
-  if (state === 'CLOSED') {
-    return {
-      label: 'Riapri Issue',
-      reason: canDemote ? undefined : 'Solo un amministratore può riaprire una issue chiusa',
-    };
-  }
-  return {
-    label: 'Retrocedi a To Do',
-    reason: canDemote ? undefined : "Solo l'assegnatario o un amministratore possono retrocedere la issue a To Do",
-  };
-}
-
-/**
- * Componente per i Controlli di Transizione di Stato (Promuovi / Retrocedi - F9).
- * Gestisce le transizioni del Pattern State (TO-DO -> INPROGRESS -> CLOSED)
- * e applica le autorizzazioni definite nel backend.
- * Stilato interamente con utility Tailwind CSS v4 pixel-perfect.
+ * Componente per i Controlli di Transizione di Stato (F9).
+ * - TO-DO: nessun pulsante (l'avanzamento a INPROGRESS avviene all'assegnazione da parte dell'Admin).
+ * - INPROGRESS: "Chiudi Issue" visibile ad Assegnatario o Admin; "Retrocedi a To Do" visibile solo ad Admin.
+ * - CLOSED: "Riapri Issue" visibile solo ad Admin.
+ * - Se nessuna azione è consentita all'utente corrente, non renderizza nulla.
  */
 export const IssueStateActions: React.FC<IssueStateActionsProps> = ({
   issue,
@@ -81,9 +36,15 @@ export const IssueStateActions: React.FC<IssueStateActionsProps> = ({
   const isAssignee = Boolean(user && issue.assignedToId && issue.assignedToId === user.id);
   const state = issue.state || 'TODO';
 
-  const { canPromote, canDemote } = getStatePermissions(state, isAssignee, isAdmin);
-  const promoteInfo = getPromoteInfo(state, canPromote);
-  const demoteInfo = getDemoteInfo(state, canDemote);
+  // Determinazione della visibilità dei pulsanti secondo le regole di business
+  const canClose = state === 'INPROGRESS' && (isAssignee || isAdmin);
+  const canDemoteToTodo = state === 'INPROGRESS' && isAdmin;
+  const canReopen = state === 'CLOSED' && isAdmin;
+
+  // Se l'utente non ha permessi per nessuna transizione, non renderizzare nulla
+  if (!canClose && !canDemoteToTodo && !canReopen && !errorMessage) {
+    return null;
+  }
 
   const handleAction = async (action: 'promote' | 'demote') => {
     if (!issue.id || !effectiveProjectId || loadingAction) return;
@@ -107,13 +68,12 @@ export const IssueStateActions: React.FC<IssueStateActionsProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-2 flex-wrap ${className}`.trim()}>
-      {/* Pulsante Retrocedi (Demote) */}
-      {state !== 'TODO' && (
+      {/* Pulsante Retrocedi a To Do (solo Admin in INPROGRESS) */}
+      {canDemoteToTodo && (
         <button
           type="button"
           onClick={() => handleAction('demote')}
-          disabled={!canDemote || Boolean(loadingAction)}
-          title={demoteInfo.reason}
+          disabled={Boolean(loadingAction)}
           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 font-sans text-sm font-medium leading-tight rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#161b22] text-slate-700 dark:text-slate-200 hover:not-disabled:bg-slate-50 dark:hover:not-disabled:bg-slate-800 hover:not-disabled:border-slate-300 dark:hover:not-disabled:border-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 disabled:opacity-45 disabled:cursor-not-allowed"
         >
           {isDemoteLoading ? (
@@ -121,23 +81,41 @@ export const IssueStateActions: React.FC<IssueStateActionsProps> = ({
           ) : (
             <RotateCcw size={15} aria-hidden="true" />
           )}
-          <span>{demoteInfo.label}</span>
+          <span>Retrocedi a To Do</span>
         </button>
       )}
 
-      {/* Pulsante Promuovi (Promote) */}
-      {state !== 'CLOSED' && (
+      {/* Pulsante Riapri Issue (solo Admin in CLOSED) */}
+      {canReopen && (
+        <button
+          type="button"
+          onClick={() => handleAction('demote')}
+          disabled={Boolean(loadingAction)}
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 font-sans text-sm font-medium leading-tight rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#161b22] text-slate-700 dark:text-slate-200 hover:not-disabled:bg-slate-50 dark:hover:not-disabled:bg-slate-800 hover:not-disabled:border-slate-300 dark:hover:not-disabled:border-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 disabled:opacity-45 disabled:cursor-not-allowed"
+        >
+          {isDemoteLoading ? (
+            <Loader2 size={15} className="animate-spin text-blue-600 dark:text-blue-400" aria-hidden="true" />
+          ) : (
+            <RotateCcw size={15} aria-hidden="true" />
+          )}
+          <span>Riapri Issue</span>
+        </button>
+      )}
+
+      {/* Pulsante Chiudi Issue (Assegnatario o Admin in INPROGRESS) */}
+      {canClose && (
         <button
           type="button"
           onClick={() => handleAction('promote')}
-          disabled={!canPromote || Boolean(loadingAction)}
-          title={promoteInfo.reason}
+          disabled={Boolean(loadingAction)}
           className="inline-flex items-center gap-1.5 px-3.5 py-1.5 font-sans text-sm font-medium leading-tight rounded-lg border border-blue-600 bg-blue-600 text-white hover:not-disabled:bg-blue-700 cursor-pointer whitespace-nowrap transition-all duration-150 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 disabled:opacity-45 disabled:cursor-not-allowed"
         >
-          {isPromoteLoading && <Loader2 size={15} className="animate-spin" aria-hidden="true" />}
-          {!isPromoteLoading && state === 'TODO' && <Play size={15} aria-hidden="true" />}
-          {!isPromoteLoading && state !== 'TODO' && <CheckCircle2 size={15} aria-hidden="true" />}
-          <span>{promoteInfo.label}</span>
+          {isPromoteLoading ? (
+            <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+          ) : (
+            <CheckCircle2 size={15} aria-hidden="true" />
+          )}
+          <span>Chiudi Issue</span>
         </button>
       )}
 

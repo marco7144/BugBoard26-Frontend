@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  ArrowLeft,
-  Pencil,
-  Clock,
-  FolderKanban,
-  AlertCircle,
-  Loader2,
-  Maximize2,
-  X,
-} from 'lucide-react';
+import { ArrowLeft, Pencil, Clock, FolderKanban, AlertCircle, Loader2, Maximize2, X } from 'lucide-react';
 import { issueService, type IssueResponseDto } from '../services/issueService';
 import { commentService, type CommentResponseDto } from '../services/commentService';
 import { projectService, type UserResponseDto } from '../services/projectService';
@@ -232,17 +223,18 @@ export const IssueDetailPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Pulsante Modifica Ticket (F9) */}
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-lg hover:not-disabled:border-blue-500 hover:not-disabled:text-blue-600 hover:not-disabled:bg-blue-50 dark:hover:not-disabled:bg-blue-950/30 transition-all duration-150 shadow-xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-            onClick={() => setIsEditModalOpen(true)}
-            disabled={!editPermissions.canEdit}
-            title={editPermissions.reason || 'Modifica dettagli del ticket'}
-          >
-            <Pencil size={15} />
-            <span>Modifica</span>
-          </button>
+          {/* Pulsante Modifica Ticket (F9) - Visibile solo a chi ha diritto di modifica */}
+          {editPermissions.canEdit && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all duration-150 shadow-xs cursor-pointer"
+              onClick={() => setIsEditModalOpen(true)}
+              title="Modifica dettagli del ticket"
+            >
+              <Pencil size={15} />
+              <span>Modifica</span>
+            </button>
+          )}
 
           {/* Controlli di Transizione di Stato (State Pattern - F9) */}
           <IssueStateActions

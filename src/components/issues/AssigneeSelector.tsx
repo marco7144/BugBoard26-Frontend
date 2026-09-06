@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, ChevronDown, Check, Search, Loader2, ShieldAlert, Lock, UserX } from 'lucide-react';
+import { User, ChevronDown, Check, Search, Loader2, ShieldAlert, UserX } from 'lucide-react';
 import type { IssueResponseDto } from '../../services/issueService';
 import { issueService } from '../../services/issueService';
 import type { UserResponseDto } from '../../services/projectService';
@@ -28,10 +28,8 @@ function getUserInitial(name?: string | null): string {
 /**
  * Componente per la Selezione e l'Assegnazione di una Issue (F4).
  *
- * - Permette agli Admin di assegnare la issue a qualsiasi partecipante del progetto.
- * - Mostra una vista in sola lettura protetta per utenti standard.
- * - Include ricerca rapida per username/email nel menu a tendina.
- * - Stilato interamente con utility Tailwind CSS v4.
+ * - Admin: seleziona un partecipante dalla tendina e clicca "Assegna" per confermare.
+ * - Utenti Base: visualizzazione statica, pulita ed essenziale senza pulsanti o tendine.
  */
 export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
   issue,
@@ -46,6 +44,7 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
 
   const [internalParticipants, setInternalParticipants] = useState<UserResponseDto[]>([]);
   const participants = externalParticipants ?? internalParticipants;
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(issue.assignedToId ?? null);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
@@ -60,75 +59,24 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
     }
   }, [effectiveProjectId, externalParticipants]);
 
+  useEffect(() => {
+    setSelectedUserId(issue.assignedToId ?? null);
+  }, [issue.assignedToId]);
+
   const currentAssignee =
     participants.find((p) => p.id === issue.assignedToId) ??
     (issue.assignedToUsername
       ? { id: issue.assignedToId, username: issue.assignedToUsername }
       : null);
 
-  const filteredParticipants = searchQuery.trim()
-    ? participants.filter(
-        (p) =>
-          p.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.email?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : participants;
-
-  const handleSelect = async (userId: number) => {
-    if (!effectiveProjectId || !issue.id || isAssigning || userId === issue.assignedToId) {
-      setIsOpen(false);
-      return;
-    }
-
-    setIsAssigning(true);
-    setErrorMessage(null);
-
-    try {
-      const updated = await issueService.assignIssue(effectiveProjectId, issue.id, userId);
-      setIsOpen(false);
-      setSearchQuery('');
-      onAssigneeChanged?.(updated);
-    } catch (err: unknown) {
-      setErrorMessage(
-        err instanceof Error ? err.message : "Errore durante l'assegnazione della issue."
-      );
-    } finally {
-      setIsAssigning(false);
-    }
-  };
-
-  const isInteractive = isAdmin && !disabled;
-
-  return (
-    <div className={`relative flex flex-col gap-2 w-full ${className}`.trim()}>
-      <div className="flex items-center justify-between gap-2">
+  // Per gli utenti base: box informativo statico e pulito
+  if (!isAdmin) {
+    return (
+      <div className={`flex flex-col gap-2 w-full ${className}`.trim()}>
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           <User size={14} aria-hidden="true" /> Assegnatario
         </span>
-        {!isAdmin && (
-          <span
-            className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full"
-            title="Solo gli amministratori possono riassegnare i ticket"
-          >
-            <Lock size={11} aria-hidden="true" /> Solo Admin
-          </span>
-        )}
-      </div>
-
-      <button
-        type="button"
-        className={`flex items-center justify-between gap-2.5 w-full px-3 py-2 border rounded-lg font-sans text-sm text-left transition-all duration-150 shadow-xs ${
-          isInteractive
-            ? 'bg-white dark:bg-[#161b22] border-slate-200 dark:border-slate-700 hover:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer'
-            : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 cursor-default'
-        } ${isOpen ? 'border-slate-400 bg-slate-50 dark:bg-slate-800/60 ring-1 ring-slate-400/20' : ''}`}
-        onClick={() => isInteractive && setIsOpen(!isOpen)}
-        disabled={!isInteractive || isAssigning}
-        title={!isAdmin ? 'Modifica riservata agli Admin' : 'Clicca per modificare'}
-        aria-haspopup="true"
-        aria-expanded={isOpen}
-      >
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+        <div className="flex items-center gap-2.5 w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-800/30">
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
               currentAssignee
@@ -149,21 +97,117 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
             )}
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {isInteractive && (
-          <div className="text-slate-400 flex items-center">
-            {isAssigning ? (
-              <Loader2 size={16} className="animate-spin text-blue-600 dark:text-blue-400" aria-hidden="true" />
-            ) : (
-              <ChevronDown
-                size={16}
-                className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                aria-hidden="true"
-              />
-            )}
+  // Per l'Amministratore: selezione del partecipante e invio tramite pulsante "Assegna"
+  const selectedParticipant =
+    participants.find((p) => p.id === selectedUserId) ??
+    (selectedUserId === issue.assignedToId ? currentAssignee : null);
+
+  const filteredParticipants = searchQuery.trim()
+    ? participants.filter(
+        (p) =>
+          p.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : participants;
+
+  const handleSelect = (userId: number) => {
+    setSelectedUserId(userId);
+    setIsOpen(false);
+    setSearchQuery('');
+  };
+
+  const canAssign = Boolean(
+    selectedUserId &&
+      selectedUserId !== issue.assignedToId &&
+      !isAssigning &&
+      !disabled
+  );
+
+  const handleAssignSubmit = async () => {
+    if (!effectiveProjectId || !issue.id || !selectedUserId || selectedUserId === issue.assignedToId || isAssigning) {
+      return;
+    }
+
+    setIsAssigning(true);
+    setErrorMessage(null);
+
+    try {
+      const updated = await issueService.assignIssue(effectiveProjectId, issue.id, selectedUserId);
+      onAssigneeChanged?.(updated);
+    } catch (err: unknown) {
+      setErrorMessage(
+        err instanceof Error ? err.message : "Errore durante l'assegnazione della issue."
+      );
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  return (
+    <div className={`relative flex flex-col gap-2 w-full ${className}`.trim()}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <User size={14} aria-hidden="true" /> Assegnatario
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          className={`flex items-center justify-between gap-2.5 w-full px-3 py-2 border rounded-lg font-sans text-sm text-left transition-all duration-150 shadow-xs bg-white dark:bg-[#161b22] border-slate-200 dark:border-slate-700 hover:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer ${
+            isOpen ? 'border-slate-400 bg-slate-50 dark:bg-slate-800/60 ring-1 ring-slate-400/20' : ''
+          }`}
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          disabled={disabled || isAssigning}
+          aria-haspopup="true"
+          aria-expanded={isOpen}
+          title="Seleziona partecipante da assegnare"
+        >
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                selectedParticipant
+                  ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-dashed border-slate-300 dark:border-slate-700'
+            }`}
+          >
+            {selectedParticipant ? getUserInitial(selectedParticipant.username) : <UserX size={15} />}
+            </div>
+            <div className="flex flex-col min-w-0 overflow-hidden">
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                {selectedParticipant?.username ?? 'Seleziona partecipante...'}
+              </span>
+              {selectedParticipant?.email && (
+                <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  {selectedParticipant.email}
+                </span>
+              )}
+            </div>
           </div>
-        )}
-      </button>
+
+          <div className="text-slate-400 flex items-center">
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+              aria-hidden="true"
+            />
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleAssignSubmit}
+          disabled={!canAssign}
+          className="inline-flex items-center justify-center gap-2 w-full px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-500 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed shadow-xs"
+        >
+          {isAssigning && <Loader2 size={13} className="animate-spin" aria-hidden="true" />}
+          <span>{issue.assignedToId ? 'Riassegna' : 'Assegna'}</span>
+        </button>
+      </div>
 
       {errorMessage && (
         <div
@@ -175,7 +219,7 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
         </div>
       )}
 
-      {isOpen && isInteractive && (
+      {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} aria-hidden="true" />
           <div
@@ -201,7 +245,7 @@ export const AssigneeSelector: React.FC<AssigneeSelectorProps> = ({
                 </div>
               ) : (
                 filteredParticipants.map((p) => {
-                  const isSelected = p.id === issue.assignedToId;
+                  const isSelected = p.id === selectedUserId;
                   return (
                     <button
                       key={p.id ?? p.username}
