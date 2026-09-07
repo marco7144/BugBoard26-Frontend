@@ -55,4 +55,10 @@
   [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
     background: #484f58;
   }
+
+  /* Layout stability: riserva lo spazio della scrollbar per evitare layout shift */
+  main {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
 }

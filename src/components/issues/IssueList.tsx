@@ -8,6 +8,8 @@ export interface IssueListProps {
   issues?: IssueResponseDto[];
   /** Flag per indicare lo stato di caricamento dei dati */
   isLoading?: boolean;
+  /** Flag per indicare il caricamento iniziale con spinner dedicato */
+  isInitialLoading?: boolean;
   /** Callback invocata al click su una issue card */
   onIssueClick?: (issue: IssueResponseDto) => void;
   /** Callback opzionale per resettare i filtri quando la lista è vuota */
@@ -27,12 +29,13 @@ export interface IssueListProps {
  *
  * Responsabilità:
  * - Renderizza la griglia responsive di IssueCard.
- * - Gestisce lo stato di caricamento mostrando un elegante spinner rotante.
+ * - Gestisce lo stato iniziale di caricamento a freddo e una velatura fluida durante la paginazione/filtro.
  * - Gestisce lo stato vuoto (Empty State) con icone contestuali e azione opzionale di reset filtri.
  */
 export const IssueList: React.FC<IssueListProps> = ({
   issues,
   isLoading = false,
+  isInitialLoading = false,
   onIssueClick,
   onResetFilters,
   emptyTitle = 'Nessuna issue trovata',
@@ -40,8 +43,8 @@ export const IssueList: React.FC<IssueListProps> = ({
   projectId,
   className = '',
 }) => {
-  // 1. Stato di Caricamento (Loading State con Spinner compatto)
-  if (isLoading) {
+  // 1. Stato di Caricamento Iniziale (mostrato solo al primo caricamento del progetto)
+  if (isInitialLoading) {
     return (
       <div className={`w-full flex flex-col gap-4 ${className}`.trim()}>
         <output className="flex flex-col items-center justify-center p-16 bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-xl gap-4 text-center" aria-label="Caricamento issue in corso...">
@@ -52,14 +55,19 @@ export const IssueList: React.FC<IssueListProps> = ({
     );
   }
 
-  // 2. Stato Vuoto (Empty State)
+  // 2. Stato Vuoto (Empty State con transizione fluida di opacità durante il ricaricamento da filtri)
   if (!issues || issues.length === 0) {
     const isFilterResetAvailable = Boolean(onResetFilters);
     const EmptyIcon = isFilterResetAvailable ? SearchX : Inbox;
 
     return (
       <div className={`w-full flex flex-col gap-4 ${className}`.trim()}>
-        <section className="flex flex-col items-center justify-center text-center p-14 bg-white dark:bg-[#161b22] border border-dashed border-slate-200 dark:border-slate-800 rounded-xl gap-4" aria-label="Nessun ticket">
+        <section
+          className={`flex flex-col items-center justify-center text-center p-14 bg-white dark:bg-[#161b22] border border-dashed border-slate-200 dark:border-slate-800 rounded-xl gap-4 transition-opacity duration-200 ${
+            isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'
+          }`}
+          aria-label="Nessun ticket"
+        >
           <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
             <EmptyIcon size={28} aria-hidden="true" />
           </div>
@@ -86,10 +94,12 @@ export const IssueList: React.FC<IssueListProps> = ({
     );
   }
 
-  // 3. Stato Normale: Griglia di Issue Cards
+  // 3. Stato Normale: Griglia di Issue Cards (con attenuazione opacità fluida durante il ricaricamento)
   return (
     <div className={`w-full flex flex-col gap-4 ${className}`.trim()}>
-      <ul className="flex flex-col gap-3.5 w-full list-none p-0 m-0 min-h-245.5">
+      <ul className={`flex flex-col gap-3.5 w-full list-none p-0 m-0 min-h-245.5 transition-opacity duration-200 ${
+        isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'
+      }`}>
         {issues.map((issue) => (
           <li key={issue.id ?? `${issue.title}-${issue.creationDate}`} className="list-none w-full">
             <IssueCard

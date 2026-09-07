@@ -62,6 +62,7 @@ export const DashboardPage: React.FC = () => {
   const [participants, setParticipants] = useState<UserResponseDto[]>([]);
   const [labels, setLabels] = useState<LabelResponseDto[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
@@ -101,8 +102,14 @@ export const DashboardPage: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Errore nel caricamento della dashboard.');
     } finally {
       setIsLoading(false);
+      setIsInitialLoading(false);
     }
   }, [filters.type, filters.state, filters.priority, filters.assignedToId, filters.labelId, filters.sortBy, filters.sortDir, debouncedSearch, currentPage]);
+
+  // Reset del caricamento iniziale al cambio di progetto
+  useEffect(() => {
+    setIsInitialLoading(true);
+  }, [selectedProject?.id]);
 
   // Ricarica quando cambia progetto, filtri, ricerca debounced o pagina corrente
   useEffect(() => {
@@ -117,7 +124,11 @@ export const DashboardPage: React.FC = () => {
   };
 
   const handleResetFilters = () => {
-    setFilters(DEFAULT_ISSUE_FILTERS);
+    setFilters((prev) => ({
+      ...DEFAULT_ISSUE_FILTERS,
+      sortBy: prev.sortBy,
+      sortDir: prev.sortDir,
+    }));
     setCurrentPage(1);
   };
 
@@ -283,6 +294,7 @@ export const DashboardPage: React.FC = () => {
       <IssueList
         issues={issues}
         isLoading={isLoading}
+        isInitialLoading={isInitialLoading}
         projectId={selectedProject?.id}
         onIssueClick={(issue) =>
           selectedProject?.id && issue.id && navigate(`/projects/${selectedProject.id}/issues/${issue.id}`)

@@ -12,23 +12,23 @@ export interface UserTableProps {
 }
 
 /**
- * Componente di Presentazione: Tabella Utenti (Step 26 - Fase 7)
+ * Componente di Presentazione: Tabella Utenti
  *
  * Responsabilità:
  * - Renderizza l'elenco degli utenti registrati in formato tabellare responsive (Tailwind CSS).
  * - Mostra ID (#id), Avatar con iniziale, Username, Email e Badge Ruolo (ADMIN / USER).
- * - Gestisce in modo minimale lo stato di caricamento e lo stato vuoto (KISS).
+ * - Gestisce lo stato iniziale di caricamento e una velatura fluida durante la paginazione/ricerca.
  */
 export const UserTable: React.FC<UserTableProps> = ({
   users,
   isLoading = false,
   className = '',
 }) => {
-  // 1. Stato di Caricamento
-  if (isLoading) {
+  // 1. Stato di Caricamento Iniziale 
+  if (isLoading && (!users || users.length === 0)) {
     return (
       <div
-        className={`w-full min-h-131.5 p-12 flex flex-col items-center justify-center gap-3 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 ${className}`.trim()}
+        className={`w-full min-h-134 p-12 flex flex-col items-center justify-center gap-3 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 ${className}`.trim()}
       >
         <Loader2 className="animate-spin text-slate-700 dark:text-slate-300" size={28} aria-hidden="true" />
         <p className="text-sm font-medium">Caricamento utenti in corso...</p>
@@ -40,7 +40,7 @@ export const UserTable: React.FC<UserTableProps> = ({
   if (!users || users.length === 0) {
     return (
       <div
-        className={`w-full min-h-131.5 p-12 flex flex-col items-center justify-center gap-2 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-center text-slate-500 dark:text-slate-400 ${className}`.trim()}
+        className={`w-full min-h-134 p-12 flex flex-col items-center justify-center gap-2 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl text-center text-slate-500 dark:text-slate-400 ${className}`.trim()}
       >
         <Users size={32} className="opacity-50" aria-hidden="true" />
         <p className="text-sm font-medium">Nessun utente registrato trovato.</p>
@@ -48,25 +48,27 @@ export const UserTable: React.FC<UserTableProps> = ({
     );
   }
 
-  // 3. Tabella Utenti
+  // 3. Tabella Utenti (con attenuazione opacità fluida durante il ricaricamento)
   return (
     <div
-      className={`w-full min-h-131.5 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs ${className}`.trim()}
+      className={`w-full min-h-134 bg-white dark:bg-[#161b22] border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs transition-opacity duration-200 ${
+        isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'
+      } ${className}`.trim()}
     >
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full min-w-162.5 table-fixed text-left border-collapse">
           <thead>
             <tr className="h-11 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
               <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-20">
                 ID
               </th>
-              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-3/12">
                 Utente
               </th>
-              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-5/12">
                 Email
               </th>
-              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-4/12">
                 Ruolo
               </th>
             </tr>

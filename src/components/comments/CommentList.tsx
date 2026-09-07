@@ -7,7 +7,7 @@ export interface CommentListProps {
   comments: CommentResponseDto[];
   /** Flag di caricamento in corso */
   isLoading?: boolean;
-  /** Titolo personalizzato per la sezione (default: "Attività & Commenti") */
+  /** Titolo personalizzato per la sezione (default: "Commenti") */
   title?: string;
   /** Classe CSS aggiuntiva */
   className?: string;
@@ -39,7 +39,7 @@ function formatDate(dateStr?: string | null): string {
 export const CommentList: React.FC<CommentListProps> = ({
   comments,
   isLoading = false,
-  title = 'Attività & Commenti',
+  title = 'Commenti',
   className = '',
 }) => {
   if (isLoading) {

@@ -43,18 +43,17 @@
   "build": {
     "appId": "com.bugboard26.app",
     "productName": "BugBoard26",
-    "icon": "build/icon.ico",
+    "icon": "public/favicon.ico",
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**/*",
-      "electron/**/*",
-      "src/assets/**/*"
+      "electron/**/*"
     ],
     "win": {
       "target": "nsis",
-      "icon": "build/icon.ico"
+      "icon": "public/favicon.ico"
     }
   }
 }

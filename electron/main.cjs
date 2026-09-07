@@ -11,7 +11,7 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 700,
     title: 'BugBoard26',
-    icon: path.join(__dirname, '../src/assets/icon.ico'),
+    icon: path.join(__dirname, isDev ? '../public/favicon.ico' : '../dist/favicon.ico'),
     autoHideMenuBar: true,       
     backgroundMaterial: 'mica',  // Effetto satinato nativo Windows 11 
     webPreferences: {
