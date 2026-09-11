@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Users,
   X,
@@ -51,18 +51,17 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Stati per caricamento, submit e messaggi
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const modalContainerRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => {
     setSelectedUserId('');
     setSearchQuery('');
     setApiError(null);
     setSuccessMessage(null);
+    setIsLoading(true);
     onClose();
   }, [onClose]);
 
@@ -118,27 +117,6 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
     }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, isSubmitting, handleClose]);
-
-  // Gestione click all'esterno del modale
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (
-        isOpen &&
-        !isSubmitting &&
-        modalContainerRef.current &&
-        !modalContainerRef.current.contains(e.target as Node)
-      ) {
-        handleClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [isOpen, isSubmitting, handleClose]);
 
@@ -206,7 +184,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
   const renderParticipantsContent = () => {
     if (isLoading) {
       return (
-        <div className="flex flex-col items-center justify-center gap-2.5 py-7 px-4 text-slate-500 dark:text-slate-400 text-sm text-center">
+        <div className="flex flex-col items-center justify-center gap-2.5 py-10 px-4 min-h-48 text-slate-500 dark:text-slate-400 text-sm text-center">
           <Loader2 size={24} className="animate-spin text-blue-600 dark:text-blue-400" />
           <span>Caricamento membri in corso...</span>
         </div>
@@ -215,7 +193,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
 
     if (filteredParticipants.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center gap-2.5 py-7 px-4 text-slate-400 dark:text-slate-500 text-sm text-center">
+        <div className="flex flex-col items-center justify-center gap-2.5 py-10 px-4 min-h-48 text-slate-400 dark:text-slate-500 text-sm text-center">
           <User size={32} className="opacity-60" />
           <span>
             {searchQuery
@@ -305,10 +283,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
       aria-labelledby="participants-modal-title"
       aria-modal="true"
     >
-      <div
-        ref={modalContainerRef}
-        className="relative w-full max-w-145 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-      >
+      <div className="relative w-full max-w-145 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Intestazione Modale */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 gap-3">
           <div className="flex flex-col gap-1">
@@ -333,7 +308,7 @@ export const ProjectParticipantsModal: React.FC<ProjectParticipantsModalProps> =
           </div>
           <button
             type="button"
-            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
             onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi finestra"

@@ -31,7 +31,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const modalContainerRef = useRef<HTMLDivElement>(null);
 
   // Chiusura con reset dello stato del form
   const handleClose = useCallback(() => {
@@ -67,27 +66,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, isSubmitting, handleClose]);
-
-  // Gestione click esterno al contenitore per chiudere il modale
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (
-        isOpen &&
-        !isSubmitting &&
-        modalContainerRef.current &&
-        !modalContainerRef.current.contains(e.target as Node)
-      ) {
-        handleClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [isOpen, isSubmitting, handleClose]);
 
@@ -165,10 +143,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
       aria-modal="true"
     >
       {/* Contenitore Modale */}
-      <div
-        ref={modalContainerRef}
-        className="relative w-full max-w-130 max-h-[90vh] bg-white dark:bg-[#161b22] border-2 border-slate-300 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-        >
+      <div className="relative w-full max-w-130 max-h-[90vh] bg-white dark:bg-[#161b22] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Intestazione Modale */}
         <div className="flex items-center justify-between px-5 py-4 gap-3">
           <h2 id="create-project-title" className="flex items-center gap-2.5 text-lg font-semibold text-slate-900 dark:text-slate-100 m-0">
@@ -177,7 +152,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           </h2>
           <button
             type="button"
-            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
             onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi finestra"
@@ -291,7 +266,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             {/* Bottone Annulla */}
             <button
               type="button"
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-400 dark:border-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring "
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-400 dark:hover:border-slate-600 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs"
               onClick={onClose}
               disabled={isSubmitting}
             >

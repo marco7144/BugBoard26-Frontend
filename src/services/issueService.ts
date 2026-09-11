@@ -91,7 +91,7 @@ export const issueService = {
 
   /**
    * Crea una nuova issue all'interno di un progetto.
-   * Endpoint protetto (`POST /api/projects/{projectId}/issues/createissue`).
+   * Endpoint protetto (`POST /api/projects/{projectId}/issues`).
    *
    * @param projectId - ID del progetto
    * @param request - Dati della nuova issue (titolo, descrizione, priorità, tipo, immagine, labelIds)
@@ -99,7 +99,7 @@ export const issueService = {
    */
   createIssue(projectId: number, request: IssueRequestDto): Promise<IssueResponseDto> {
     return apiClient.post<IssueResponseDto>(
-      `/api/projects/${projectId}/issues/createissue`,
+      `/api/projects/${projectId}/issues`,
       request
     );
   },

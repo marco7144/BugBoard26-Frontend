@@ -117,6 +117,17 @@ export const DashboardPage: React.FC = () => {
     loadDashboardData(selectedProject.id);
   }, [selectedProject?.id, loadDashboardData]);
 
+  // Ricarica i dati quando le etichette vengono create, modificate o eliminate
+  useEffect(() => {
+    const handleLabelsChanged = () => {
+      if (selectedProject?.id) {
+        loadDashboardData(selectedProject.id);
+      }
+    };
+    window.addEventListener('labels:changed', handleLabelsChanged);
+    return () => window.removeEventListener('labels:changed', handleLabelsChanged);
+  }, [selectedProject?.id, loadDashboardData]);
+
   // Reset a pagina 1 quando cambiano i filtri o la query di ricerca debounced
   const handleFilterChange = (newFilters: IssueFilterState) => {
     setFilters(newFilters);

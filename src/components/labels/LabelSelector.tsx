@@ -77,13 +77,19 @@ export const LabelSelector: React.FC<LabelSelectorProps> = ({
     ? propAvailableLabels
     : internalLabels;
 
-  // Caricamento iniziale etichette se non fornite dall'esterno
+  // Caricamento iniziale etichette se non fornite dall'esterno e ascolto modifiche globali
   useEffect(() => {
     if (propAvailableLabels && propAvailableLabels.length > 0) return;
-    labelService
-      .getAllLabels()
-      .then((data) => setInternalLabels(Array.isArray(data) ? data : []))
-      .catch(() => setInternalLabels([]));
+    const fetchLabels = () => {
+      labelService
+        .getAllLabels()
+        .then((data) => setInternalLabels(Array.isArray(data) ? data : []))
+        .catch(() => setInternalLabels([]));
+    };
+
+    fetchLabels();
+    window.addEventListener('labels:changed', fetchLabels);
+    return () => window.removeEventListener('labels:changed', fetchLabels);
   }, [propAvailableLabels]);
 
   // Focus automatico sul campo di ricerca all'apertura

@@ -100,6 +100,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{projectId}/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getIssues"];
+        put?: never;
+        post: operations["createIssue"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{projectId}/issues/{issueId}/labels/{labelId}": {
         parameters: {
             query?: never;
@@ -126,38 +142,6 @@ export interface paths {
         get: operations["getCommentsByIssue"];
         put?: never;
         post: operations["addComment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}/issues/{issueId}/comments/addcomment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["addComment_1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}/issues/createissue": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["createIssue"];
         delete?: never;
         options?: never;
         head?: never;
@@ -276,22 +260,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/projects/{projectId}/issues/{issueId}/comments/getcomments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getCommentsByIssue_1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/projects/{projectId}/issues/summary": {
         parameters: {
             query?: never;
@@ -300,38 +268,6 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getIssueSummary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}/issues": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getIssues"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}/issues/getissues": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getIssues_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -409,7 +345,8 @@ export interface components {
             username: string;
             email: string;
             password?: string;
-            type?: string;
+            /** @enum {string} */
+            type?: "ADMIN" | "BASEUSER";
         };
         AuthenticationResponseDto: {
             token?: string;
@@ -465,17 +402,8 @@ export interface components {
             id?: number;
             username?: string;
             email?: string;
-            type?: string;
-        };
-        IssueSummaryDto: {
-            /** Format: int64 */
-            total?: number;
-            /** Format: int64 */
-            open?: number;
-            /** Format: int64 */
-            bugs?: number;
-            /** Format: int64 */
-            closed?: number;
+            /** @enum {string} */
+            type?: "ADMIN" | "BASEUSER";
         };
         PageResponseDtoIssueResponseDto: {
             content?: components["schemas"]["IssueResponseDto"][];
@@ -488,6 +416,16 @@ export interface components {
             /** Format: int32 */
             totalPages?: number;
             last?: boolean;
+        };
+        IssueSummaryDto: {
+            /** Format: int64 */
+            total?: number;
+            /** Format: int64 */
+            open?: number;
+            /** Format: int64 */
+            bugs?: number;
+            /** Format: int64 */
+            closed?: number;
         };
     };
     responses: never;
@@ -737,6 +675,65 @@ export interface operations {
             };
         };
     };
+    getIssues: {
+        parameters: {
+            query?: {
+                type?: "BUG" | "QUESTION" | "FEATURE" | "DOCUMENTATION";
+                state?: "TODO" | "INPROGRESS" | "CLOSED";
+                priority?: "HIGH" | "MEDIUM" | "LOW";
+                assignedToId?: number;
+                labelId?: number;
+                search?: string;
+                page?: number;
+                size?: number;
+                sortBy?: string;
+                sortDir?: string;
+            };
+            header?: never;
+            path: {
+                projectId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDtoIssueResponseDto"];
+                };
+            };
+        };
+    };
+    createIssue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueRequestDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IssueResponseDto"];
+                };
+            };
+        };
+    };
     addLabelToIssue: {
         parameters: {
             query?: never;
@@ -829,59 +826,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CommentResponseDto"];
-                };
-            };
-        };
-    };
-    addComment_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: number;
-                issueId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CommentRequestDto"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CommentResponseDto"];
-                };
-            };
-        };
-    };
-    createIssue: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IssueRequestDto"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IssueResponseDto"];
                 };
             };
         };
@@ -1067,29 +1011,6 @@ export interface operations {
             };
         };
     };
-    getCommentsByIssue_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: number;
-                issueId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CommentResponseDto"][];
-                };
-            };
-        };
-    };
     getIssueSummary: {
         parameters: {
             query?: never;
@@ -1108,72 +1029,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["IssueSummaryDto"];
-                };
-            };
-        };
-    };
-    getIssues: {
-        parameters: {
-            query?: {
-                type?: "BUG" | "QUESTION" | "FEATURE" | "DOCUMENTATION";
-                state?: "TODO" | "INPROGRESS" | "CLOSED";
-                priority?: "HIGH" | "MEDIUM" | "LOW";
-                assignedToId?: number;
-                labelId?: number;
-                search?: string;
-                page?: number;
-                size?: number;
-                sortBy?: string;
-                sortDir?: string;
-            };
-            header?: never;
-            path: {
-                projectId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PageResponseDtoIssueResponseDto"];
-                };
-            };
-        };
-    };
-    getIssues_1: {
-        parameters: {
-            query?: {
-                type?: "BUG" | "QUESTION" | "FEATURE" | "DOCUMENTATION";
-                state?: "TODO" | "INPROGRESS" | "CLOSED";
-                priority?: "HIGH" | "MEDIUM" | "LOW";
-                assignedToId?: number;
-                labelId?: number;
-                search?: string;
-                page?: number;
-                size?: number;
-                sortBy?: string;
-                sortDir?: string;
-            };
-            header?: never;
-            path: {
-                projectId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PageResponseDtoIssueResponseDto"];
                 };
             };
         };

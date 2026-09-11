@@ -220,7 +220,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
           </h2>
           <button
             type="button"
-            className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50/50 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
             onClick={handleClose}
             disabled={isSubmitting}
             aria-label="Chiudi modale"
@@ -414,7 +414,7 @@ export const CreateIssueModal: React.FC<CreateIssueModalProps> = ({
           <div className="flex items-center justify-end gap-3 px-6 py-3.5 bg-white dark:bg-[#161b22] rounded-b-2xl">
             <button
               type="button"
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-[#21262d] border border-slate-400 dark:border-slate-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring cursor-pointer"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-[#21262d] border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-400 dark:hover:border-slate-600 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs"
               onClick={handleClose}
               disabled={isSubmitting}
             >
