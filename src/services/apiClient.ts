@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '../config/api';
+import { getLocalizedErrorMessage } from '../utils/errorTranslations';
 
 /** 
  * Classe custom per gestire gli errori HTTP del backend.
@@ -6,13 +7,23 @@ import { API_BASE_URL } from '../config/api';
  */
 export class ApiError extends Error {
   status: number;
+  errorCode?: string;
+  details?: string[];
   data: unknown;
 
-  constructor(message: string, status: number, data?: unknown) {
+  constructor(
+    message: string,
+    status: number,
+    data?: unknown,
+    errorCode?: string,
+    details?: string[]
+  ) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.data = data;
+    this.errorCode = errorCode;
+    this.details = details;
   }
 }
 
@@ -29,6 +40,17 @@ export const USER_TOKEN_STORAGE_KEY = 'bugboard_user_token';
 
 /** Chiave per salvare i dati dell'utente (id, username, email, role) in localStorage */
 export const USER_DETAILS_STORAGE_KEY = 'bugboard_user_details';
+
+function asNonEmptyString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined;
+}
+
+function extractDetails(details: unknown): string[] | undefined {
+  if (!Array.isArray(details)) {
+    return undefined;
+  }
+  return details.map(String).filter((s) => s.trim() !== '');
+}
 
 class ApiClient {
   
@@ -70,46 +92,27 @@ class ApiClient {
     return requestHeaders;
   }
 
-  // Mappa dei messaggi di fallback descrittivi per ciascun codice di stato HTTP
-  private getDefaultErrorMessage(status: number): string {
-    switch (status) {
-      case 400:
-        return 'Richiesta non valida. Verifica i dati inseriti.';
-      case 401:
-        return 'Sessione scaduta o non valida. Effettua nuovamente il login.';
-      case 403:
-        return 'Accesso negato: non disponi dei permessi necessari per questa operazione.';
-      case 404:
-        return 'La risorsa richiesta non è stata trovata.';
-      case 409:
-        return 'Operazione non valida: la risorsa esiste già o crea un conflitto.';
-      case 500:
-      case 502:
-      case 503:
-        return 'Si è verificato un errore temporaneo sul server. Riprova più tardi.';
-      default:
-        return `Errore nella comunicazione con il server (codice ${status}).`;
+  // Estrae errorCode, messaggio e dettagli se il payload è un oggetto JSON conforme a ErrorResponseDto
+  private extractErrorInfo(errorData: unknown): {
+    errorCode?: string;
+    message?: string;
+    details?: string[];
+  } {
+    const directMessage = asNonEmptyString(errorData);
+    if (directMessage) {
+      return { message: directMessage };
     }
-  }
 
-  // Estrae una descrizione testuale dal payload di errore restituito dal backend
-  private extractErrorMessageFromData(errorData: unknown): string {
-    if (typeof errorData === 'string' && errorData.trim() !== '') {
-      return errorData;
+    if (typeof errorData !== 'object' || errorData === null) {
+      return {};
     }
-    if (Array.isArray(errorData) && errorData.length > 0) {
-      return errorData.map(String).join(', ');
-    }
-    if (typeof errorData === 'object' && errorData !== null) {
-      const dataObj = errorData as Record<string, unknown>;
-      if (typeof dataObj.message === 'string' && dataObj.message.trim() !== '') {
-        return dataObj.message;
-      }
-      if (typeof dataObj.error === 'string' && dataObj.error.trim() !== '') {
-        return dataObj.error;
-      }
-    }
-    return '';
+
+    const dataObj = errorData as Record<string, unknown>;
+    return {
+      errorCode: asNonEmptyString(dataObj.errorCode),
+      message: asNonEmptyString(dataObj.message) ?? asNonEmptyString(dataObj.error),
+      details: extractDetails(dataObj.details),
+    };
   }
 
   // Estrae e normalizza i dati dell'errore dal corpo della risposta HTTP
@@ -122,11 +125,29 @@ class ApiClient {
       // Ignora errori di parsing del body di errore
     }
 
-    const customMessage = this.extractErrorMessageFromData(errorData);
-    const fallbackMessage = response.statusText?.trim() || this.getDefaultErrorMessage(response.status);
-    const errorMessage = customMessage || fallbackMessage;
+    // Parsing difensivo: se il body è arrivato come stringa (es. Content-Type assente o non application/json), prova a parsarla come JSON
+    if (typeof errorData === 'string' && errorData.trim().startsWith('{')) {
+      try {
+        errorData = JSON.parse(errorData);
+      } catch {
+        // Mantiene la stringa se non è JSON valido
+      }
+    }
 
-    return new ApiError(errorMessage, response.status, errorData);
+    const errorInfo = this.extractErrorInfo(errorData);
+    const localizedMessage = getLocalizedErrorMessage(
+      response.status,
+      errorInfo,
+      response.statusText
+    );
+
+    return new ApiError(
+      localizedMessage,
+      response.status,
+      errorData,
+      errorInfo.errorCode,
+      errorInfo.details
+    );
   }
 
   // Gestisce lo stato di non autorizzazione: logout e notifica all'applicazione

@@ -4,7 +4,6 @@ import { LoginForm } from '../components/auth/LoginForm';
 import { ThemeToggle } from '../components/common/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
-import { ApiError } from '../services/apiClient';
 import type { LoginCredentials } from '../types/auth';
 
 /**
@@ -49,20 +48,11 @@ export const LoginPage: React.FC = () => {
         setErrorMessage('Risposta di autenticazione non valida dal server.');
       }
     } catch (err: unknown) {
-      if (
-        err instanceof ApiError &&
-        (err.status === 401 || err.status === 403 || err.status === 404)
-      ) {
-        setErrorMessage('Credenziali non valide. Verifica email e password.');
-      } else if (err instanceof ApiError && err.status === 0) {
-        setErrorMessage('Impossibile connettersi al server.');
-      } else {
-        const message =
-          err instanceof Error
-            ? err.message
-            : 'Si è verificato un errore durante l\'accesso.';
-        setErrorMessage(message);
-      }
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Si è verificato un errore durante l\'accesso.';
+      setErrorMessage(message);
     } finally {
       setIsLoading(false);
     }
